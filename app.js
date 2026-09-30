@@ -386,135 +386,254 @@ async function showLoading() {
   }
 }
 
-const STORY = { w: 1080, h: 1920, paper: "#fff6f3", ink: "#3b2b6e", dim: "#7a6aa8", pink: "#ff6fae", blush: "#ffd1e6", blue: "#6d8dff", gold: "#ffe39a" };
+const STORY = { w: 1080, h: 1920, paper: "#fff6ec", ink: "#2e2160", dim: "#6f5fa3", pink: "#ff5fae", blush: "#ffc9e3", blue: "#7aa2ff", gold: "#ffe27a", cyan: "#4fe3ff", magenta: "#ff4fd8" };
 const DISPLAY_FONT = '"Black Han Sans", sans-serif';
 const BODY_FONT = "Pretendard, system-ui, sans-serif";
+const PIXEL_FONT = "Galmuri11, monospace";
 
-function drawText(ctx, value, y, font, color) {
+function drawText(ctx, value, x, y, font, color, maxWidth = STORY.w - 200) {
   ctx.font = font;
   ctx.fillStyle = color;
-  ctx.fillText(value, STORY.w / 2, y, STORY.w - 200);
+  ctx.fillText(value, x, y, maxWidth);
+}
+
+function box(ctx, x, y, w, h, r, fill, line = 8) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+  ctx.fillStyle = fill;
+  ctx.fill();
+  if (line) {
+    ctx.lineWidth = line;
+    ctx.strokeStyle = STORY.ink;
+    ctx.stroke();
+  }
 }
 
 function drawSky(ctx, rand) {
   const sky = ctx.createLinearGradient(0, 0, 0, STORY.h);
-  sky.addColorStop(0, "#2a2b6d");
-  sky.addColorStop(0.35, "#4a47a8");
-  sky.addColorStop(0.65, "#7b6fd6");
+  sky.addColorStop(0, "#232465");
+  sky.addColorStop(0.4, "#4a47a8");
+  sky.addColorStop(0.7, "#7b6fd6");
   sky.addColorStop(1, "#d98fc0");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, STORY.w, STORY.h);
-  ctx.shadowColor = STORY.gold;
-  for (let i = 0; i < 70; i++) {
-    const size = 14 + rand() * 40;
-    ctx.shadowBlur = size / 2;
-    ctx.font = `${size}px ${BODY_FONT}`;
-    ctx.fillStyle = rand() < 0.4 ? STORY.gold : rand() < 0.5 ? STORY.blush : "#fff";
+  ctx.fillStyle = "rgba(255, 255, 255, .06)";
+  for (let x = 0; x < STORY.w; x += 48) ctx.fillRect(x, 0, 2, STORY.h);
+  for (let y = 0; y < STORY.h; y += 48) ctx.fillRect(0, y, STORY.w, 2);
+  for (let i = 0; i < 80; i++) {
+    const size = 4 + Math.floor(rand() * 3) * 4;
     ctx.globalAlpha = 0.4 + rand() * 0.6;
-    ctx.fillText(rand() < 0.3 ? "✦" : "·", rand() * STORY.w, rand() * STORY.h);
+    ctx.fillStyle = rand() < 0.4 ? STORY.gold : rand() < 0.5 ? STORY.blush : "#fff";
+    const x = rand() * STORY.w;
+    const y = rand() * STORY.h;
+    ctx.fillRect(x, y, size, size);
+    if (size > 8) {
+      ctx.fillRect(x - size, y + size / 4, size * 3, size / 2);
+      ctx.fillRect(x + size / 4, y - size, size / 2, size * 3);
+    }
   }
   ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
+  ctx.fillStyle = "rgba(255, 255, 255, .04)";
+  for (let y = 0; y < STORY.h; y += 6) ctx.fillRect(0, y, STORY.w, 2);
 }
 
-function glowText(ctx, value, x, y, font, fill) {
+function glitchText(ctx, value, x, y, font, offset) {
   ctx.font = font;
   ctx.fillStyle = STORY.ink;
-  ctx.fillText(value, x + 8, y + 8);
-  ctx.shadowColor = "rgba(255, 111, 174, .7)";
-  ctx.shadowBlur = 30;
-  ctx.lineWidth = 10;
-  ctx.strokeStyle = "#fff";
+  ctx.fillText(value, x + offset * 1.5, y + offset * 1.8);
+  ctx.fillStyle = STORY.magenta;
+  ctx.fillText(value, x + offset, y);
+  ctx.fillStyle = STORY.cyan;
+  ctx.fillText(value, x - offset, y);
+  ctx.lineWidth = offset;
+  ctx.strokeStyle = STORY.ink;
   ctx.strokeText(value, x, y);
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = fill;
+  ctx.fillStyle = "#fff";
   ctx.fillText(value, x, y);
 }
 
+function mascotImage(hue) {
+  const defs = ["screen", "iris", "scan"].map((id) => document.getElementById(id).outerHTML).join("");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 250"><defs>${defs}<filter id="hue"><feColorMatrix type="hueRotate" values="${hue}"/></filter></defs><g filter="url(#hue)">${document.getElementById("mascot").innerHTML}</g></svg>`;
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  });
+}
+
 async function renderStory({ who, type, emoji, name, nick }) {
-  const all = [who, type, name, nick, "KOTI의 본색은 너의 AI 붙여준 내 별명?✦"].join("");
-  await Promise.all([
+  const all = [who, type, name, nick, "KOTI TOY SERIES VOL.1 EDITION 판정완료! 의 본색은 AI가 붙여준 내 별명 유통기한 24시간 과몰입 주의 먹지 마세요 너의 AI 본색은? ✦⚠"].join("");
+  const [mascot] = await Promise.all([
+    mascotImage(hash(type) % 360),
     document.fonts.load(`100px ${DISPLAY_FONT}`, all),
     document.fonts.load(`800 100px ${BODY_FONT}`, all),
     document.fonts.load(`700 100px ${BODY_FONT}`, all),
+    document.fonts.load(`30px ${PIXEL_FONT}`, all),
   ]);
 
   const canvas = document.createElement("canvas");
   canvas.width = STORY.w;
   canvas.height = STORY.h;
   const ctx = canvas.getContext("2d");
-  ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.lineJoin = "round";
   const cx = STORY.w / 2;
+  const rand = rng(hash(type + who));
 
-  const top = 440;
-  const emojiY = top + 150;
-  const typeY = emojiY + 200;
+  const x = 110;
+  const w = STORY.w - x * 2;
+  const top = 420;
+  const headH = 64;
+  const winTop = top + headH + 28;
+  const winH = 440;
+  const whoY = winTop + winH + 60;
+  const typeY = whoY + 130;
   const nameY = typeY + 150;
-  const nickY = nick ? nameY + 110 : nameY;
-  const bottom = (nick ? nickY + 70 : nameY) + 110;
+  const nickY = nameY + 110;
+  const footTop = (nick ? nickY + 150 : nameY + 90);
+  const bottom = footTop + 120;
 
-  drawSky(ctx, rng(hash(type + nick)));
-  ctx.translate(0, (STORY.h - (bottom + 225 - 170)) / 2 - 170);
+  drawSky(ctx, rand);
+  ctx.translate(0, (STORY.h - (bottom + 230 - 160)) / 2 - 160);
 
+  ctx.textAlign = "center";
+  glitchText(ctx, "KOTI", cx, 270, `190px ${DISPLAY_FONT}`, 8);
+
+  ctx.fillStyle = "rgba(20, 10, 60, .5)";
+  ctx.beginPath();
+  ctx.roundRect(x + 24, top + 24, w, bottom - top, 28);
+  ctx.fill();
+  box(ctx, cx - 90, top - 64, 180, 80, [24, 24, 0, 0], STORY.paper);
+  ctx.fillStyle = STORY.ink;
+  ctx.beginPath();
+  ctx.ellipse(cx, top - 34, 36, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  const body = ctx.createLinearGradient(x, top, x + w, bottom);
+  body.addColorStop(0, "#ffb3da");
+  body.addColorStop(0.6, "#b8a9ff");
+  body.addColorStop(1, "#9fc0ff");
   ctx.save();
-  ctx.translate(cx, 250);
-  ctx.rotate((-3 * Math.PI) / 180);
-  const logo = ctx.createLinearGradient(0, -80, 0, 80);
-  logo.addColorStop(0.1, "#fff");
-  logo.addColorStop(0.45, STORY.blush);
-  logo.addColorStop(1, STORY.pink);
-  glowText(ctx, "KOTI", 0, 0, `160px ${DISPLAY_FONT}`, logo);
+  ctx.beginPath();
+  ctx.roundRect(x, top, w, bottom - top, 28);
+  ctx.clip();
+  ctx.fillStyle = body;
+  ctx.fillRect(x, top, w, bottom - top);
+  ctx.fillStyle = STORY.ink;
+  ctx.fillRect(x, top, w, headH);
+  ctx.textAlign = "left";
+  drawText(ctx, "KOTI TOY SERIES ✦ VOL.1", x + 28, top + headH / 2, `30px ${PIXEL_FONT}`, STORY.gold, w / 2);
+  ctx.textAlign = "right";
+  drawText(ctx, `${who} EDITION`, x + w - 28, top + headH / 2, `30px ${PIXEL_FONT}`, STORY.blush, w / 2 - 60);
+  ctx.textAlign = "center";
+
+  const win = ctx.createLinearGradient(0, winTop, 0, winTop + winH);
+  win.addColorStop(0, "#232465");
+  win.addColorStop(0.7, "#4a47a8");
+  win.addColorStop(1, "#d98fc0");
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x + 36, winTop, w - 72, winH, [200, 200, 36, 36]);
+  ctx.fillStyle = win;
+  ctx.fill();
+  ctx.clip();
+  for (let i = 0; i < 18; i++) {
+    ctx.fillStyle = rand() < 0.5 ? "#fff" : STORY.gold;
+    ctx.fillRect(x + 36 + rand() * (w - 72), winTop + rand() * winH, 6, 6);
+  }
+  ctx.shadowColor = "rgba(255, 200, 240, .8)";
+  ctx.shadowBlur = 40;
+  ctx.drawImage(mascot, cx - 200, winTop + 30, 400, 417);
+  ctx.shadowBlur = 0;
+  const gloss = ctx.createLinearGradient(x, winTop, x + w, winTop + winH);
+  gloss.addColorStop(0.3, "rgba(255,255,255,0)");
+  gloss.addColorStop(0.38, "rgba(255,255,255,.45)");
+  gloss.addColorStop(0.46, "rgba(255,255,255,0)");
+  ctx.fillStyle = gloss;
+  ctx.fillRect(x, winTop, w, winH);
+  ctx.restore();
+  ctx.beginPath();
+  ctx.roundRect(x + 36, winTop, w - 72, winH, [200, 200, 36, 36]);
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = STORY.ink;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(x + w - 110, winTop + winH - 70, 70, 0, Math.PI * 2);
+  ctx.fillStyle = STORY.paper;
+  ctx.fill();
+  ctx.lineWidth = 7;
+  ctx.stroke();
+  drawText(ctx, emoji, x + w - 110, winTop + winH - 66, `80px ${BODY_FONT}`, STORY.ink);
+
+  drawText(ctx, `${who}의 본색은`, cx, whoY, `34px ${PIXEL_FONT}`, STORY.ink);
+  glitchText(ctx, type, cx, typeY, `220px ${DISPLAY_FONT}`, 8);
+
+  ctx.font = `64px ${DISPLAY_FONT}`;
+  const nameW = Math.min(ctx.measureText(name).width + 60, w - 80);
+  ctx.save();
+  ctx.translate(cx, nameY);
+  ctx.rotate((-1.5 * Math.PI) / 180);
+  ctx.fillStyle = STORY.ink;
+  ctx.fillRect(-nameW / 2 + 8, -48 + 8, nameW, 96);
+  box(ctx, -nameW / 2, -48, nameW, 96, 0, STORY.gold, 6);
+  drawText(ctx, name, 0, 4, `64px ${DISPLAY_FONT}`, STORY.ink, nameW - 40);
   ctx.restore();
 
-  drawText(ctx, `${who}의 본색은`, 380, `700 46px ${BODY_FONT}`, "#fff");
-
-  ctx.shadowColor = "rgba(255, 111, 174, .55)";
-  ctx.shadowBlur = 50;
-  ctx.fillStyle = STORY.paper;
-  ctx.beginPath();
-  ctx.roundRect(80, top, 920, bottom - top, 48);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.lineWidth = 6;
-  ctx.strokeStyle = "#fff";
-  ctx.stroke();
-
-  ctx.shadowColor = STORY.gold;
-  ctx.shadowBlur = 16;
-  drawText(ctx, "✦", top + 60, `54px ${BODY_FONT}`, STORY.gold);
-  ctx.shadowBlur = 0;
-
-  drawText(ctx, emoji, emojiY, `170px ${BODY_FONT}`, STORY.ink);
-  glowText(ctx, type, cx, typeY, `210px ${DISPLAY_FONT}`, STORY.pink);
-
-  ctx.font = `68px ${DISPLAY_FONT}`;
-  const nameW = Math.min(ctx.measureText(name).width + 40, 880);
-  ctx.fillStyle = STORY.blush;
-  ctx.fillRect(cx - nameW / 2, nameY, nameW, 40);
-  drawText(ctx, name, nameY, `68px ${DISPLAY_FONT}`, STORY.ink);
-
   if (nick) {
-    drawText(ctx, "AI가 붙여준 내 별명", nickY, `700 36px ${BODY_FONT}`, STORY.dim);
-    drawText(ctx, nick, nickY + 70, `72px ${DISPLAY_FONT}`, STORY.blue);
+    drawText(ctx, "AI가 붙여준 내 별명", cx, nickY, `30px ${PIXEL_FONT}`, STORY.dim);
+    ctx.font = `60px ${DISPLAY_FONT}`;
+    const nickW = Math.min(ctx.measureText(nick).width + 80, w - 80);
+    ctx.fillStyle = STORY.ink;
+    ctx.beginPath();
+    ctx.roundRect(cx - nickW / 2 + 8, nickY + 36 + 8, nickW, 92, 46);
+    ctx.fill();
+    box(ctx, cx - nickW / 2, nickY + 36, nickW, 92, 46, STORY.blue, 6);
+    drawText(ctx, nick, cx, nickY + 84, `60px ${DISPLAY_FONT}`, "#fff", nickW - 50);
   }
 
-  ctx.shadowColor = "rgba(255, 170, 220, .8)";
-  ctx.shadowBlur = 20;
-  drawText(ctx, "너의 AI 본색은?", bottom + 90, `64px ${DISPLAY_FONT}`, "#fff");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(x, footTop, w, bottom - footTop);
+  ctx.fillStyle = STORY.ink;
+  ctx.fillRect(x, footTop, w, 8);
+  let bx = x + 36;
+  while (bx < x + 300) {
+    const bw = 3 + Math.floor(rand() * 3) * 3;
+    ctx.fillRect(bx, footTop + 26, bw, 70);
+    bx += bw + 3 + Math.floor(rand() * 3) * 3;
+  }
+  ctx.textAlign = "left";
+  drawText(ctx, "유통기한 24시간 · 이후 소각 🔥", x + 340, footTop + 44, `28px ${PIXEL_FONT}`, "#ff4d6d", w - 380);
+  drawText(ctx, "⚠ 과몰입 주의 · 먹지 마세요", x + 340, footTop + 86, `28px ${PIXEL_FONT}`, STORY.ink, w - 380);
+  ctx.textAlign = "center";
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.roundRect(x, top, w, bottom - top, 28);
+  ctx.lineWidth = 8;
+  ctx.strokeStyle = STORY.ink;
+  ctx.stroke();
+
+  ctx.save();
+  ctx.translate(x + w - 90, winTop + 10);
+  ctx.rotate((10 * Math.PI) / 180);
+  ctx.fillStyle = STORY.ink;
+  ctx.fillRect(-100 + 6, -34 + 6, 200, 68);
+  box(ctx, -100, -34, 200, 68, 0, STORY.gold, 6);
+  drawText(ctx, "판정완료!", 0, 2, `34px ${PIXEL_FONT}`, STORY.ink);
+  ctx.restore();
+
+  ctx.shadowColor = "rgba(255, 170, 220, .9)";
+  ctx.shadowBlur = 24;
+  drawText(ctx, "너의 AI 본색은?", cx, bottom + 100, `68px ${DISPLAY_FONT}`, "#fff");
   ctx.shadowBlur = 0;
   const site = `${location.host}${location.pathname}`.replace(/\/$/, "");
-  ctx.font = `700 38px ${BODY_FONT}`;
-  const siteW = ctx.measureText(site).width + 60;
-  ctx.fillStyle = STORY.paper;
-  ctx.lineWidth = 4;
-  ctx.strokeStyle = STORY.pink;
-  ctx.beginPath();
-  ctx.roundRect(cx - siteW / 2, bottom + 150, siteW, 70, 35);
-  ctx.fill();
-  ctx.stroke();
-  drawText(ctx, site, bottom + 186, `700 38px ${BODY_FONT}`, STORY.ink);
+  ctx.font = `34px ${PIXEL_FONT}`;
+  const siteW = ctx.measureText(site).width + 70;
+  box(ctx, cx - siteW / 2, bottom + 160, siteW, 70, 0, STORY.paper, 6);
+  drawText(ctx, site, cx, bottom + 196, `34px ${PIXEL_FONT}`, STORY.ink);
 
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
