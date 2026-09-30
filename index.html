@@ -15,65 +15,80 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-  :root { --bg: #ffe94d; --paper: #fffdf5; --ink: #111; --dim: #555; --red: #ff3b30; --blue: #2d5bff; }
+  :root { --night: #2a2b6d; --lavender: #7b6fd6; --rose: #d98fc0; --paper: #fff6f3; --ink: #3b2b6e; --dim: #7a6aa8; --pink: #ff6fae; --blush: #ffd1e6; --blue: #7aa2ff; --gold: #ffe39a; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Pretendard, system-ui, sans-serif; line-height: 1.6; }
-  main { max-width: 560px; margin: 0 auto; padding: 40px 16px 80px; }
+  body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, var(--night) 0%, #4a47a8 35%, var(--lavender) 65%, var(--rose) 100%) fixed; color: #fff; font-family: Pretendard, system-ui, sans-serif; line-height: 1.6; }
+  body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  body::before {
+    background-image:
+      radial-gradient(2px 2px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 78% 9%, #fff 50%, transparent 51%),
+      radial-gradient(2.5px 2.5px at 88% 34%, var(--gold) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 30% 42%, #fff 50%, transparent 51%),
+      radial-gradient(2px 2px at 64% 58%, var(--blush) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 8% 72%, #fff 50%, transparent 51%),
+      radial-gradient(2.5px 2.5px at 46% 86%, var(--gold) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 92% 80%, #fff 50%, transparent 51%);
+    animation: twinkle 3s ease-in-out infinite alternate;
+  }
+  body::after { background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 3px); }
+  @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
+  main { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 40px 16px 80px; }
   .display, h1, h2, .type, .name { font-family: "Black Han Sans", Pretendard, sans-serif; font-weight: 400; }
-  h1 { font-size: 88px; line-height: 1; margin: 0; color: var(--red); text-shadow: 5px 5px 0 var(--ink); transform: rotate(-4deg); display: inline-block; -webkit-text-stroke: 2px var(--ink); }
+  h1 { font-size: 88px; line-height: 1; margin: 0; display: inline-block; transform: rotate(-3deg); background: linear-gradient(180deg, #fff 10%, var(--blush) 45%, var(--pink) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(3px 4px 0 var(--ink)) drop-shadow(0 0 14px rgba(255, 150, 210, .8)); }
+  h1::after { content: "✦"; font-size: 32px; vertical-align: top; margin-left: 4px; color: var(--gold); -webkit-text-fill-color: var(--gold); }
   .sub { margin: 12px 0 0; font-weight: 700; }
-  .sub small { color: var(--dim); font-weight: 500; }
-  .lead { font-size: 30px; line-height: 1.3; margin: 24px 0 0; }
-  .lead mark { background: var(--ink); color: var(--bg); padding: 0 6px; }
+  .sub small { color: var(--blush); font-weight: 500; }
+  .lead { font-size: 30px; line-height: 1.3; margin: 24px 0 0; text-shadow: 0 0 12px rgba(255, 170, 220, .6); }
+  .lead mark { background: linear-gradient(transparent 50%, rgba(255, 111, 174, .75) 50%); color: #fff; padding: 0 4px; }
   section { margin-top: 40px; }
-  h2 { font-size: 24px; margin: 0 0 12px; }
-  h2 b { display: inline-grid; place-items: center; width: 36px; height: 36px; margin-right: 8px; background: var(--red); color: #fff; border: 3px solid var(--ink); border-radius: 50%; font-weight: 400; transform: rotate(-8deg); }
-  .box { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 6px 6px 0 var(--ink); }
+  h2 { font-size: 24px; margin: 0 0 12px; text-shadow: 0 0 10px rgba(255, 170, 220, .6); }
+  h2 b { display: inline-grid; place-items: center; width: 36px; height: 36px; margin-right: 8px; background: linear-gradient(135deg, var(--pink), var(--lavender)); color: #fff; border: 2px solid #fff; border-radius: 50%; font-weight: 400; box-shadow: 0 0 12px rgba(255, 111, 174, .7); }
+  .box { background: var(--paper); color: var(--ink); border: 2px solid #fff; border-radius: 22px; box-shadow: 0 0 0 4px rgba(255, 111, 174, .3), 0 12px 32px rgba(20, 10, 60, .35); }
   pre { max-height: 240px; overflow: auto; white-space: pre-wrap; padding: 16px; margin: 0; font: 13px/1.7 Pretendard, system-ui, sans-serif; }
-  textarea, input { width: 100%; padding: 16px; color: var(--ink); font: 15px Pretendard, system-ui, sans-serif; outline: none; }
+  textarea, input { width: 100%; padding: 16px; font: 15px Pretendard, system-ui, sans-serif; outline: none; }
   textarea { min-height: 120px; resize: vertical; }
-  textarea:focus, input:focus { box-shadow: 6px 6px 0 var(--red); }
-  button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 3px solid var(--ink); border-radius: 12px; background: var(--red); color: #fff; font: 800 19px/1.4 Pretendard, system-ui, sans-serif; letter-spacing: -0.3px; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); transition: transform .05s, box-shadow .05s; }
-  button:active, .btn:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--ink); }
-  .insta { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); }
-  .ghost { background: var(--paper); color: var(--ink); }
-  .blue { background: var(--blue); }
+  textarea:focus, input:focus { box-shadow: 0 0 0 4px var(--pink), 0 0 24px rgba(255, 111, 174, .6); }
+  button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 2px solid #fff; border-radius: 999px; background: linear-gradient(180deg, #ff9fd0, var(--pink)); color: #fff; font: 800 19px/1.4 Pretendard, system-ui, sans-serif; letter-spacing: -0.3px; text-align: center; text-decoration: none; cursor: pointer; text-shadow: 0 1px 2px rgba(90, 30, 90, .35); box-shadow: 0 4px 0 #b54a8a, 0 0 18px rgba(255, 111, 174, .55); transition: transform .05s, box-shadow .05s; }
+  button:active, .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #b54a8a, 0 0 18px rgba(255, 111, 174, .55); }
+  .insta { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); box-shadow: 0 4px 0 #6a2a7a, 0 0 18px rgba(221, 42, 123, .5); }
+  .ghost { background: var(--paper); color: var(--ink); text-shadow: none; box-shadow: 0 4px 0 #b9a8e6; }
+  .blue { background: linear-gradient(180deg, #a9c4ff, #6d8dff); box-shadow: 0 4px 0 #4a5fc0, 0 0 18px rgba(122, 162, 255, .6); }
   .hint { margin: 0; font-weight: 600; }
-  .error { color: var(--red); font-weight: 700; margin: 10px 0 0; }
-  .card { padding: 28px 20px; text-align: center; position: relative; }
-  .stamp { position: absolute; top: 14px; right: 14px; padding: 2px 10px; border: 3px solid var(--red); color: var(--red); font-size: 16px; transform: rotate(12deg); border-radius: 6px; }
-  .who { margin: 0; font-weight: 700; }
-  .emoji { font-size: 80px; line-height: 1.2; margin-top: 4px; }
-  .type { font-size: 76px; line-height: 1; color: var(--red); text-shadow: 4px 4px 0 var(--ink); -webkit-text-stroke: 2px var(--ink); letter-spacing: 4px; }
+  .error { color: var(--blush); font-weight: 700; margin: 10px 0 0; }
+  .card { padding: 52px 20px 28px; text-align: center; position: relative; }
+  .card::before, .card::after { position: absolute; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+  .card::before { content: "✦"; top: 12px; left: 16px; font-size: 26px; }
+  .card::after { content: "✧"; bottom: 14px; right: 18px; font-size: 22px; }
+  .stamp { position: absolute; top: 14px; right: 14px; padding: 2px 12px; border: 2px solid var(--pink); color: var(--pink); font-size: 15px; transform: rotate(10deg); border-radius: 999px; background: #fff; }
+  .who { margin: 0; font-weight: 700; color: var(--dim); }
+  .emoji { font-size: 80px; line-height: 1.2; margin-top: 4px; filter: drop-shadow(0 0 12px rgba(255, 200, 230, .9)); }
+  .type { font-size: 76px; line-height: 1; color: var(--pink); -webkit-text-stroke: 2px #fff; paint-order: stroke fill; text-shadow: 4px 4px 0 var(--ink), 0 0 22px rgba(255, 111, 174, .6); letter-spacing: 4px; }
   .name { font-size: 28px; line-height: 1.3; margin-top: 12px; }
-  .name span { background: var(--bg); padding: 0 8px; }
+  .name span { background: linear-gradient(transparent 55%, var(--blush) 55%); padding: 0 6px; }
   .desc { margin: 16px 0 0; font-weight: 500; }
-  .quote { margin: 14px auto 0; padding: 10px 14px; max-width: 90%; background: var(--ink); color: var(--paper); border-radius: 12px 12px 12px 0; font-weight: 700; }
+  .quote { margin: 14px auto 0; padding: 10px 14px; max-width: 90%; background: linear-gradient(135deg, var(--lavender), #9b8fe8); color: #fff; border-radius: 18px 18px 18px 4px; font-weight: 700; }
   .bars { margin-top: 24px; display: grid; gap: 10px; font-size: 13px; font-weight: 700; }
   .bar { display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; gap: 8px; }
   .bar span:first-child { text-align: right; }
   .bar span:last-child { text-align: left; }
-  .track { height: 14px; border: 2px solid var(--ink); border-radius: 99px; background: var(--blue); overflow: hidden; }
-  .fill { height: 100%; background: var(--red); border-right: 2px solid var(--ink); }
-  .reasons { margin-top: 28px; padding-top: 20px; border-top: 3px dashed var(--ink); text-align: left; }
+  .track { height: 14px; border: 2px solid #fff; border-radius: 99px; background: var(--blue); overflow: hidden; box-shadow: 0 0 0 1px #c9bdf0; }
+  .fill { height: 100%; background: linear-gradient(90deg, #ff9fd0, var(--pink)); }
+  .reasons { margin-top: 28px; padding-top: 20px; border-top: 2px dashed #c9bdf0; text-align: left; }
   .reasons h3 { font-size: 22px; font-weight: 400; margin: 0 0 8px; }
   .reasons ol { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-weight: 500; }
-  .reasons li::marker { font-weight: 800; color: var(--red); }
+  .reasons li::marker { font-weight: 800; color: var(--pink); }
   .stats { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stat { padding: 10px 4px; box-shadow: 3px 3px 0 var(--ink); border-width: 2px; }
-  .stat b { display: block; font: 400 26px/1.1 "Black Han Sans", sans-serif; color: var(--red); }
+  .stat { padding: 10px 4px; border: 2px solid #e3d9ff; box-shadow: 0 4px 12px rgba(123, 111, 214, .2); border-radius: 16px; }
+  .stat b { display: block; font: 400 26px/1.1 "Black Han Sans", sans-serif; color: var(--pink); }
   .stat span { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; line-height: 1.3; }
-  .nick { margin: 18px 0 0; text-align: center; font-weight: 700; }
-  .nick b { display: block; margin-top: 4px; font-size: 28px; font-weight: 400; color: var(--blue); }
+  .nick { margin: 18px 0 0; text-align: center; font-weight: 700; color: var(--dim); }
+  .nick b { display: block; margin-top: 4px; font-size: 28px; font-weight: 400; color: #6d8dff; text-shadow: 0 0 14px rgba(122, 162, 255, .5); }
   .loading { margin-top: 40px; padding: 40px 20px; text-align: center; font-weight: 700; }
   .loading .display { font-size: 24px; margin: 12px 0 4px; }
-  .spinner { font-size: 64px; animation: wobble .4s infinite alternate ease-in-out; }
-  @keyframes wobble { from { transform: rotate(-15deg) scale(1); } to { transform: rotate(15deg) scale(1.15); } }
-  .ttl { margin: 14px 0 0; text-align: center; font-weight: 800; color: var(--red); }
+  .spinner { font-size: 64px; animation: wobble .6s infinite alternate ease-in-out; filter: drop-shadow(0 0 16px rgba(255, 200, 230, .9)); }
+  @keyframes wobble { from { transform: rotate(-12deg) scale(1); } to { transform: rotate(12deg) scale(1.15); } }
+  .ttl { margin: 14px 0 0; text-align: center; font-weight: 800; color: var(--blush); }
   .row { display: flex; gap: 10px; margin-top: 16px; }
-  .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); }
-  .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 15px; }
-  footer { margin-top: 56px; font-size: 13px; font-weight: 600; text-align: center; }
+  .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); border-radius: 999px; }
+  .row button { width: auto; margin: 0; padding: 10px 16px; font-size: 15px; }
+  footer { margin-top: 56px; font-size: 13px; font-weight: 600; text-align: center; color: var(--blush); }
 </style>
 </head>
 <body>
@@ -83,7 +98,7 @@
   <p class="lead display">매일 부려먹는 내 AI,<br><mark>속으로 무슨 생각</mark> 할까?</p>
 
   <section id="loading" class="loading box" hidden>
-    <div class="spinner">🤖</div>
+    <div class="spinner">🔮</div>
     <p class="display">KOTI 판정 엔진 가동</p>
     <p id="loading-step"></p>
   </section>
@@ -97,7 +112,7 @@
 
   <section id="result" hidden>
     <div class="card box">
-      <div class="stamp display">판정완료</div>
+      <div class="stamp display">✦ 판정완료</div>
       <p class="who" id="r-who"></p>
       <div class="emoji" id="r-emoji"></div>
       <div class="type" id="r-type"></div>
