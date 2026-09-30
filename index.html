@@ -3,99 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>KOTI — 내 AI의 MBTI 검사</title>
-<meta name="description" content="프롬프트 하나로 알아보는 내 AI의 성격 유형. ChatGPT, Claude, Gemini… 너의 AI는 무슨 타입?">
+<title>KOTI — 내 AI 본색 검사</title>
+<meta name="description" content="매일 부려먹는 내 AI, 속으로 무슨 생각 할까? 프롬프트 하나로 까보는 AI 전용 MBTI.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="KOTI — 내 AI의 MBTI 검사">
-<meta property="og:description" content="프롬프트 하나로 알아보는 내 AI의 성격 유형. 너의 AI는 무슨 타입?">
+<meta property="og:title" content="KOTI — 내 AI 본색 검사">
+<meta property="og:description" content="매일 부려먹는 내 AI, 알고 보니 무슨 타입? 프롬프트 하나로 까보는 AI 전용 MBTI.">
 <meta property="og:image" content="https://jellodev.github.io/koti/og.png">
 <meta property="og:url" content="https://jellodev.github.io/koti/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-  :root { --bg: #0f0e17; --card: #1b1a2b; --line: #2e2c47; --text: #fffffe; --dim: #a7a9be; --accent: #ff8906; --pop: #e53170; }
+  :root { --bg: #ffe94d; --paper: #fffdf5; --ink: #111; --dim: #555; --red: #ff3b30; --blue: #2d5bff; }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--text); font-family: Pretendard, system-ui, sans-serif; line-height: 1.6; }
-  main { max-width: 560px; margin: 0 auto; padding: 48px 16px 80px; }
-  h1 { font-size: 64px; line-height: 1; margin: 0; letter-spacing: -2px; background: linear-gradient(90deg, var(--accent), var(--pop)); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .sub { color: var(--dim); margin: 8px 0 0; }
-  .lead { font-size: 22px; font-weight: 700; margin: 24px 0 0; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Pretendard, system-ui, sans-serif; line-height: 1.6; }
+  main { max-width: 560px; margin: 0 auto; padding: 40px 16px 80px; }
+  .display, h1, h2, .type, .name, button, .btn { font-family: "Black Han Sans", Pretendard, sans-serif; font-weight: 400; }
+  h1 { font-size: 88px; line-height: 1; margin: 0; color: var(--red); text-shadow: 5px 5px 0 var(--ink); transform: rotate(-4deg); display: inline-block; -webkit-text-stroke: 2px var(--ink); }
+  .sub { margin: 12px 0 0; font-weight: 700; }
+  .sub small { color: var(--dim); font-weight: 500; }
+  .lead { font-size: 30px; line-height: 1.3; margin: 24px 0 0; }
+  .lead mark { background: var(--ink); color: var(--bg); padding: 0 6px; }
   section { margin-top: 40px; }
-  h2 { font-size: 18px; margin: 0 0 12px; }
-  h2 b { color: var(--accent); margin-right: 6px; }
-  pre { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; max-height: 220px; overflow: auto; white-space: pre-wrap; font: 13px/1.6 Pretendard, system-ui, sans-serif; color: var(--dim); margin: 0; }
-  textarea, input { width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; color: var(--text); font: 15px Pretendard, system-ui, sans-serif; outline: none; }
+  h2 { font-size: 24px; margin: 0 0 12px; }
+  h2 b { display: inline-grid; place-items: center; width: 36px; height: 36px; margin-right: 8px; background: var(--red); color: #fff; border: 3px solid var(--ink); border-radius: 50%; font-weight: 400; transform: rotate(-8deg); }
+  .box { background: var(--paper); border: 3px solid var(--ink); border-radius: 12px; box-shadow: 6px 6px 0 var(--ink); }
+  pre { max-height: 240px; overflow: auto; white-space: pre-wrap; padding: 16px; margin: 0; font: 13px/1.7 Pretendard, system-ui, sans-serif; }
+  textarea, input { width: 100%; padding: 16px; color: var(--ink); font: 15px Pretendard, system-ui, sans-serif; outline: none; }
   textarea { min-height: 120px; resize: vertical; }
-  textarea:focus, input:focus { border-color: var(--accent); }
-  button, .btn { display: block; width: 100%; margin-top: 12px; padding: 16px; border: 0; border-radius: 16px; background: var(--accent); color: var(--bg); font: 700 18px Pretendard, system-ui, sans-serif; text-align: center; text-decoration: none; cursor: pointer; }
-  button:active, .btn:active { transform: scale(.98); }
-  .ghost { background: transparent; color: var(--text); border: 1px solid var(--line); }
-  .hint { color: var(--dim); font-size: 14px; margin: 8px 0 0; }
-  .error { color: var(--pop); font-size: 14px; margin: 8px 0 0; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 32px 20px; text-align: center; }
-  .who { color: var(--dim); margin: 0; }
-  .emoji { font-size: 72px; line-height: 1.2; margin-top: 8px; }
-  .type { font-size: 56px; font-weight: 900; letter-spacing: 2px; line-height: 1.1; color: var(--accent); }
-  .name { font-size: 24px; font-weight: 800; margin-top: 4px; }
-  .desc { margin: 16px 0 0; }
-  .quote { color: var(--dim); font-style: italic; margin: 12px 0 0; }
-  .bars { margin-top: 24px; display: grid; gap: 10px; font-size: 13px; }
-  .bar { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 8px; }
+  textarea:focus, input:focus { box-shadow: 6px 6px 0 var(--red); }
+  button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 3px solid var(--ink); border-radius: 12px; background: var(--red); color: #fff; font-size: 22px; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); transition: transform .05s, box-shadow .05s; }
+  button:active, .btn:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--ink); }
+  .ghost { background: var(--paper); color: var(--ink); }
+  .blue { background: var(--blue); }
+  .hint { margin: 0; font-weight: 600; }
+  .error { color: var(--red); font-weight: 700; margin: 10px 0 0; }
+  .card { padding: 28px 20px; text-align: center; position: relative; }
+  .stamp { position: absolute; top: 14px; right: 14px; padding: 2px 10px; border: 3px solid var(--red); color: var(--red); font-size: 16px; transform: rotate(12deg); border-radius: 6px; }
+  .who { margin: 0; font-weight: 700; }
+  .emoji { font-size: 80px; line-height: 1.2; margin-top: 4px; }
+  .type { font-size: 76px; line-height: 1; color: var(--red); text-shadow: 4px 4px 0 var(--ink); -webkit-text-stroke: 2px var(--ink); letter-spacing: 4px; }
+  .name { font-size: 28px; line-height: 1.3; margin-top: 12px; }
+  .name span { background: var(--bg); padding: 0 8px; }
+  .desc { margin: 16px 0 0; font-weight: 500; }
+  .quote { margin: 14px auto 0; padding: 10px 14px; max-width: 90%; background: var(--ink); color: var(--paper); border-radius: 12px 12px 12px 0; font-weight: 700; }
+  .bars { margin-top: 24px; display: grid; gap: 10px; font-size: 13px; font-weight: 700; }
+  .bar { display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; gap: 8px; }
   .bar span:first-child { text-align: right; }
   .bar span:last-child { text-align: left; }
-  .track { height: 10px; border-radius: 99px; background: var(--pop); overflow: hidden; }
-  .fill { height: 100%; background: var(--accent); }
-  .row { display: flex; gap: 8px; margin-top: 12px; }
+  .track { height: 14px; border: 2px solid var(--ink); border-radius: 99px; background: var(--blue); overflow: hidden; }
+  .fill { height: 100%; background: var(--red); border-right: 2px solid var(--ink); }
+  .row { display: flex; gap: 10px; margin-top: 16px; }
   .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); }
-  .row button { width: auto; margin: 0; padding: 12px 16px; font-size: 14px; }
-  footer { margin-top: 48px; color: var(--dim); font-size: 12px; text-align: center; }
+  .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 16px; }
+  footer { margin-top: 56px; font-size: 13px; font-weight: 600; text-align: center; }
 </style>
 </head>
 <body>
 <main>
   <h1>KOTI</h1>
-  <p class="sub">Ko Type Indicator · AI 전용 MBTI</p>
-  <p class="lead">매일 쓰는 내 AI,<br>성격은 무슨 타입일까?</p>
+  <p class="sub">Ko Type Indicator · AI 전용 MBTI <small>(비공식)(아주 비공식)</small></p>
+  <p class="lead display">매일 부려먹는 내 AI,<br><mark>속으로 무슨 생각</mark> 할까?</p>
 
   <section id="result" hidden>
-    <div class="card">
+    <div class="card box">
+      <div class="stamp display">판정완료</div>
       <p class="who" id="r-who"></p>
       <div class="emoji" id="r-emoji"></div>
       <div class="type" id="r-type"></div>
-      <div class="name" id="r-name"></div>
+      <div class="name"><span id="r-name"></span></div>
       <p class="desc" id="r-desc"></p>
       <p class="quote" id="r-quote"></p>
       <div class="bars" id="r-bars"></div>
     </div>
-    <a class="btn" id="cta" href="#test" hidden>내 AI도 검사하기 →</a>
-    <button type="button" id="share">결과 공유하기</button>
-    <a class="btn ghost" id="share-x" target="_blank" rel="noopener">X에 공유하기</a>
+    <a class="btn blue" id="cta" href="#test" hidden>내 AI 본색도 까보기 →</a>
+    <button type="button" id="share">친구한테 자랑하기</button>
+    <a class="btn ghost" id="share-x" target="_blank" rel="noopener">X에 박제하기</a>
     <div class="row">
-      <input id="link" readonly aria-label="결과 링크" onfocus="this.select()">
+      <input class="box" id="link" readonly aria-label="결과 링크" onfocus="this.select()">
       <button type="button" id="copy-link" class="ghost">링크 복사</button>
     </div>
   </section>
 
   <section id="test">
-    <h2><b>1</b>검사 프롬프트 복사</h2>
-    <pre id="prompt"></pre>
-    <button type="button" id="copy">프롬프트 복사하기</button>
+    <h2><b>1</b>수상한 검사지 복사</h2>
+    <pre class="box" id="prompt"></pre>
+    <button type="button" id="copy">검사지 복사하기</button>
   </section>
 
   <section>
-    <h2><b>2</b>자주 쓰는 AI에게 붙여넣기</h2>
-    <p class="hint">ChatGPT, Claude, Gemini, 뤼튼… 평소 대화하던 창에서 할수록 정확해요.</p>
+    <h2><b>2</b>AI한테 들이밀기</h2>
+    <p class="hint">ChatGPT, Claude, Gemini… 평소 부려먹던 그 대화창에서 해야 본색이 나옴.</p>
   </section>
 
   <section>
-    <h2><b>3</b>AI의 답을 여기에 붙여넣기</h2>
-    <textarea id="answer" placeholder="KOTI|Claude|ABBAABABBAAB"></textarea>
-    <p class="error" id="error" hidden>KOTI|모델명|A·B 12개 형식을 찾지 못했어요. AI 답변 전체를 붙여넣어 주세요.</p>
-    <button type="button" id="analyze">내 AI 성격 보기</button>
+    <h2><b>3</b>AI 자백 붙여넣기</h2>
+    <textarea class="box" id="answer" placeholder="KOTI|Claude|ABBAABABBAABBABAABAB"></textarea>
+    <p class="error" id="error" hidden>AI가 형식을 안 지켰네요. 괘씸. 답변을 통째로 붙여넣거나 다시 시켜보세요.</p>
+    <button type="button" id="analyze">본색 까보기</button>
   </section>
 
-  <footer>답변은 어디에도 저장되지 않아요. 결과는 링크 안에만 있어요.</footer>
+  <footer>답변은 어디에도 저장 안 함. 우리도 모름. 진짜로.</footer>
 </main>
 <script src="app.js"></script>
 </body>
