@@ -11,150 +11,289 @@
 <meta property="og:image" content="https://jellodev.github.io/koti-com/og.png">
 <meta property="og:url" content="https://jellodev.github.io/koti-com/">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+<meta name="theme-color" content="#232465">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📺</text></svg>">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
 <style>
-  :root { --night: #2a2b6d; --lavender: #7b6fd6; --rose: #d98fc0; --paper: #fff6f3; --ink: #3b2b6e; --dim: #7a6aa8; --pink: #ff6fae; --blush: #ffd1e6; --blue: #7aa2ff; --gold: #ffe39a; }
+  :root {
+    --night: #232465; --violet: #4a47a8; --lavender: #b8a9ff; --lilac: #9d8cf0; --rose: #d98fc0;
+    --paper: #fff6ec; --ink: #2e2160; --dim: #6f5fa3; --pink: #ff5fae; --blush: #ffc9e3; --blue: #7aa2ff;
+    --sky: #a9d6ff; --gold: #ffe27a; --mint: #9ff0d8; --cyan: #4fe3ff; --magenta: #ff4fd8; --red: #ff4d6d;
+    --pixel: Galmuri11, Galmuri9, monospace;
+    --display: "Black Han Sans", Pretendard, sans-serif;
+    --body: Pretendard, system-ui, sans-serif;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, var(--night) 0%, #4a47a8 35%, var(--lavender) 65%, var(--rose) 100%) fixed; color: #fff; font-family: Pretendard, system-ui, sans-serif; line-height: 1.6; }
+  body {
+    margin: 0; min-height: 100vh; color: #fff; font-family: var(--body); line-height: 1.6; overflow-x: hidden;
+    background:
+      linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(180deg, var(--night) 0%, var(--violet) 40%, #7b6fd6 70%, var(--rose) 100%) fixed;
+  }
   body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; }
   body::before {
     background-image:
       radial-gradient(2px 2px at 12% 18%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 78% 9%, #fff 50%, transparent 51%),
       radial-gradient(2.5px 2.5px at 88% 34%, var(--gold) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 30% 42%, #fff 50%, transparent 51%),
       radial-gradient(2px 2px at 64% 58%, var(--blush) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 8% 72%, #fff 50%, transparent 51%),
-      radial-gradient(2.5px 2.5px at 46% 86%, var(--gold) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 92% 80%, #fff 50%, transparent 51%);
+      radial-gradient(2.5px 2.5px at 46% 86%, var(--gold) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 92% 80%, #fff 50%, transparent 51%),
+      radial-gradient(2px 2px at 55% 25%, #fff 50%, transparent 51%), radial-gradient(1.5px 1.5px at 22% 92%, var(--blush) 50%, transparent 51%);
     animation: twinkle 3s ease-in-out infinite alternate;
   }
-  body::after { background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 3px); }
+  body::after { background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px); z-index: 50; }
   @keyframes twinkle { from { opacity: .35; } to { opacity: 1; } }
-  main { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 40px 16px 80px; }
-  .display, h1, h2, .type, .name { font-family: "Black Han Sans", Pretendard, sans-serif; font-weight: 400; }
-  h1 { font-size: 88px; line-height: 1; margin: 0; display: inline-block; transform: rotate(-3deg); background: linear-gradient(180deg, #fff 10%, var(--blush) 45%, var(--pink) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(3px 4px 0 var(--ink)) drop-shadow(0 0 14px rgba(255, 150, 210, .8)); }
-  h1::after { content: "✦"; font-size: 32px; vertical-align: top; margin-left: 4px; color: var(--gold); -webkit-text-fill-color: var(--gold); }
-  .sub { margin: 12px 0 0; font-weight: 700; }
-  .sub small { color: var(--blush); font-weight: 500; }
-  .lead { font-size: 30px; line-height: 1.3; margin: 24px 0 0; text-shadow: 0 0 12px rgba(255, 170, 220, .6); }
-  .lead mark { background: linear-gradient(transparent 50%, rgba(255, 111, 174, .75) 50%); color: #fff; padding: 0 4px; }
-  section { margin-top: 40px; }
-  h2 { font-size: 24px; margin: 0 0 12px; text-shadow: 0 0 10px rgba(255, 170, 220, .6); }
-  h2 b { display: inline-grid; place-items: center; width: 36px; height: 36px; margin-right: 8px; background: linear-gradient(135deg, var(--pink), var(--lavender)); color: #fff; border: 2px solid #fff; border-radius: 50%; font-weight: 400; box-shadow: 0 0 12px rgba(255, 111, 174, .7); }
-  .box { background: var(--paper); color: var(--ink); border: 2px solid #fff; border-radius: 22px; box-shadow: 0 0 0 4px rgba(255, 111, 174, .3), 0 12px 32px rgba(20, 10, 60, .35); }
-  pre { max-height: 240px; overflow: auto; white-space: pre-wrap; padding: 16px; margin: 0; font: 13px/1.7 Pretendard, system-ui, sans-serif; }
-  textarea, input { width: 100%; padding: 16px; font: 15px Pretendard, system-ui, sans-serif; outline: none; }
+  main { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: 28px 16px 80px; }
+  .display, h2, .type, .name { font-family: var(--display); font-weight: 400; }
+  .px { shape-rendering: crispEdges; }
+
+  .hero { position: relative; padding-top: 12px; }
+  .kv { position: relative; margin: 0 auto; width: min(88%, 340px); aspect-ratio: 1 / 1; transform: rotate(-3deg); }
+  .kv-frame {
+    position: absolute; inset: 0; border: 4px solid var(--ink); border-radius: 6px; overflow: hidden;
+    background:
+      radial-gradient(circle, rgba(255, 255, 255, .35) 1.5px, transparent 2px) 0 0 / 12px 12px,
+      linear-gradient(160deg, var(--blush) 0%, var(--lavender) 55%, var(--sky) 100%);
+    box-shadow: 10px 10px 0 rgba(20, 10, 60, .5);
+  }
+  .kv-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, .45) 48%, transparent 56%); }
+  .kv .mascot { position: absolute; left: 12%; top: 10%; width: 76%; animation: float 3.2s ease-in-out infinite; }
+  @keyframes float { 50% { transform: translateY(-8px) rotate(1deg); } }
+  .tape { position: absolute; width: 96px; height: 26px; background: rgba(255, 226, 122, .75); border-left: 3px dotted rgba(255, 255, 255, .6); border-right: 3px dotted rgba(255, 255, 255, .6); z-index: 3; }
+  .tape.a { top: -12px; left: -18px; transform: rotate(-32deg); }
+  .tape.b { top: -10px; right: -16px; transform: rotate(28deg); background: rgba(159, 240, 216, .75); }
+  .sticker { position: absolute; z-index: 4; display: grid; place-items: center; font-family: var(--pixel); color: var(--ink); border: 3px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); line-height: 1.2; text-align: center; }
+  .sticker.round { width: 76px; height: 76px; border-radius: 50%; background: var(--pink); color: #fff; font-size: 13px; right: -14px; bottom: 26%; transform: rotate(14deg); }
+  .sticker.burst { width: 92px; height: 92px; left: -22px; bottom: 6%; font-size: 12px; background: var(--gold); border: 0; box-shadow: none; transform: rotate(-12deg);
+    clip-path: polygon(50% 0, 61% 18%, 82% 10%, 80% 32%, 100% 40%, 84% 55%, 96% 75%, 74% 76%, 70% 98%, 52% 84%, 32% 100%, 28% 78%, 6% 80%, 16% 58%, 0 42%, 18% 32%, 14% 10%, 36% 18%); }
+  .sticker.tag { top: 8%; left: -12px; padding: 2px 8px; font-size: 11px; background: var(--mint); transform: rotate(-8deg); }
+  .sprite { position: absolute; z-index: 4; width: 28px; height: 28px; }
+  .sprite.s1 { top: 6%; right: 10%; animation: blink 1.2s steps(2) infinite; }
+  .sprite.s2 { bottom: 12%; right: 30%; width: 20px; height: 20px; animation: blink 1.6s steps(2) infinite .4s; }
+  .sprite.s3 { top: 44%; left: 4%; width: 18px; height: 18px; animation: blink 1.4s steps(2) infinite .2s; }
+  @keyframes blink { 50% { opacity: .2; } }
+
+  .glitch { position: relative; margin: -22px 0 0; text-align: center; font: 400 104px/1 var(--display); letter-spacing: 2px; color: #fff; z-index: 5;
+    text-shadow: 4px 0 var(--magenta), -4px 0 var(--cyan), 0 0 24px rgba(255, 150, 220, .8); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; }
+  .glitch::before, .glitch::after { content: attr(data-text); position: absolute; inset: 0; -webkit-text-stroke: 0; text-shadow: none; opacity: 0; }
+  .glitch::before { color: var(--magenta); animation: glitch-a 2.8s steps(1) infinite; }
+  .glitch::after { color: var(--cyan); animation: glitch-b 3.4s steps(1) infinite; }
+  @keyframes glitch-a { 0%, 88%, 100% { transform: none; opacity: 0; } 89% { transform: translate(-8px, -2px); opacity: 1; clip-path: inset(10% 0 60% 0); } 92% { transform: translate(6px, 1px); opacity: 1; clip-path: inset(40% 0 35% 0); } 95% { transform: translate(-3px, 0); opacity: 1; clip-path: inset(0 0 80% 0); } }
+  @keyframes glitch-b { 0%, 84%, 100% { transform: none; opacity: 0; } 85% { transform: translate(8px, 2px); opacity: 1; clip-path: inset(70% 0 5% 0); } 90% { transform: translate(-6px, 0); opacity: 1; clip-path: inset(50% 0 30% 0); } }
+  .label { display: table; margin: 6px auto 0; padding: 4px 12px; background: var(--paper); color: var(--ink); font: 12px/1.4 var(--pixel); border: 2px solid var(--ink); transform: rotate(1.5deg); box-shadow: 3px 3px 0 var(--ink); }
+  .lead { margin: 22px 0 0; text-align: center; font: 400 28px/1.3 var(--display); text-shadow: 3px 3px 0 var(--ink), 0 0 16px rgba(255, 170, 220, .6); }
+  .lead mark { background: linear-gradient(transparent 55%, rgba(255, 95, 174, .85) 55%); color: #fff; padding: 0 4px; }
+
+  .paper { position: relative; margin-top: 40px; padding: 26px 18px 22px; background: var(--paper); color: var(--ink); border: 3px solid var(--ink); box-shadow: 8px 8px 0 rgba(20, 10, 60, .5); transform: rotate(-1deg); }
+  .paper:nth-child(even) { transform: rotate(1deg); background: #eef4ff; }
+  .paper::before { content: ""; position: absolute; top: -14px; left: 50%; width: 110px; height: 24px; margin-left: -55px; background: rgba(255, 201, 227, .85); border-left: 3px dotted rgba(255, 255, 255, .7); border-right: 3px dotted rgba(255, 255, 255, .7); transform: rotate(-2deg); }
+  h2 { display: flex; align-items: center; gap: 12px; font-size: 23px; margin: 0 0 12px; }
+  h2 b { display: inline-grid; place-items: center; width: 32px; height: 32px; background: var(--pink); color: #fff; font: 16px var(--pixel);
+    box-shadow: 0 -3px 0 var(--ink), 0 3px 0 var(--ink), -3px 0 0 var(--ink), 3px 0 0 var(--ink); }
+  pre { max-height: 240px; overflow: auto; white-space: pre-wrap; padding: 14px; margin: 0; font: 13px/1.7 var(--body); background: #fff; border: 2px dashed var(--lilac); }
+  textarea, input { width: 100%; padding: 14px; font: 15px var(--body); color: var(--ink); background: #fff; border: 2px dashed var(--lilac); outline: none; }
   textarea { min-height: 120px; resize: vertical; }
-  textarea:focus, input:focus { box-shadow: 0 0 0 4px var(--pink), 0 0 24px rgba(255, 111, 174, .6); }
-  button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 2px solid #fff; border-radius: 999px; background: linear-gradient(180deg, #ff9fd0, var(--pink)); color: #fff; font: 800 19px/1.4 Pretendard, system-ui, sans-serif; letter-spacing: -0.3px; text-align: center; text-decoration: none; cursor: pointer; text-shadow: 0 1px 2px rgba(90, 30, 90, .35); box-shadow: 0 4px 0 #b54a8a, 0 0 18px rgba(255, 111, 174, .55); transition: transform .05s, box-shadow .05s; }
-  button:active, .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #b54a8a, 0 0 18px rgba(255, 111, 174, .55); }
-  .insta { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); box-shadow: 0 4px 0 #6a2a7a, 0 0 18px rgba(221, 42, 123, .5); }
-  .ghost { background: var(--paper); color: var(--ink); text-shadow: none; box-shadow: 0 4px 0 #b9a8e6; }
-  .blue { background: linear-gradient(180deg, #a9c4ff, #6d8dff); box-shadow: 0 4px 0 #4a5fc0, 0 0 18px rgba(122, 162, 255, .6); }
+  textarea:focus, input:focus { border: 2px solid var(--pink); box-shadow: 0 0 0 3px var(--blush); }
   .hint { margin: 0; font-weight: 600; }
-  .error { color: var(--blush); font-weight: 700; margin: 10px 0 0; }
-  .card { padding: 52px 20px 28px; text-align: center; position: relative; }
-  .card::before, .card::after { position: absolute; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
-  .card::before { content: "✦"; top: 12px; left: 16px; font-size: 26px; }
-  .card::after { content: "✧"; bottom: 14px; right: 18px; font-size: 22px; }
-  .stamp { position: absolute; top: 14px; right: 14px; padding: 2px 12px; border: 2px solid var(--pink); color: var(--pink); font-size: 15px; transform: rotate(10deg); border-radius: 999px; background: #fff; }
-  .who { margin: 0; font-weight: 700; color: var(--dim); }
-  .emoji { font-size: 80px; line-height: 1.2; margin-top: 4px; filter: drop-shadow(0 0 12px rgba(255, 200, 230, .9)); }
-  .type { font-size: 76px; line-height: 1; color: var(--pink); -webkit-text-stroke: 2px #fff; paint-order: stroke fill; text-shadow: 4px 4px 0 var(--ink), 0 0 22px rgba(255, 111, 174, .6); letter-spacing: 4px; }
-  .name { font-size: 28px; line-height: 1.3; margin-top: 12px; }
-  .name span { background: linear-gradient(transparent 55%, var(--blush) 55%); padding: 0 6px; }
-  .desc { margin: 16px 0 0; font-weight: 500; }
-  .quote { margin: 14px auto 0; padding: 10px 14px; max-width: 90%; background: linear-gradient(135deg, var(--lavender), #9b8fe8); color: #fff; border-radius: 18px 18px 18px 4px; font-weight: 700; }
-  .bars { margin-top: 24px; display: grid; gap: 10px; font-size: 13px; font-weight: 700; }
-  .bar { display: grid; grid-template-columns: 72px 1fr 72px; align-items: center; gap: 8px; }
+
+  button, .btn {
+    display: block; width: 100%; margin-top: 20px; padding: 14px; border: 0; background: linear-gradient(180deg, #ff9fd0, var(--pink)); color: #fff;
+    font: 800 18px/1.4 var(--body); text-align: center; text-decoration: none; cursor: pointer; text-shadow: 1px 1px 0 rgba(46, 33, 96, .5);
+    box-shadow: 0 -4px 0 var(--ink), 0 4px 0 var(--ink), -4px 0 0 var(--ink), 4px 0 0 var(--ink), 0 10px 0 rgba(20, 10, 60, .45);
+    transition: transform .05s, box-shadow .05s;
+  }
+  button:active, .btn:active { transform: translateY(5px); box-shadow: 0 -4px 0 var(--ink), 0 4px 0 var(--ink), -4px 0 0 var(--ink), 4px 0 0 var(--ink), 0 4px 0 rgba(20, 10, 60, .45); }
+  .blue { background: linear-gradient(180deg, #b7ceff, #6d8dff); }
+  .insta { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); }
+  .ghost { background: var(--paper); color: var(--ink); text-shadow: none; }
+  .error { color: var(--red); font-weight: 800; margin: 10px 0 0; }
+
+  .package { position: relative; margin-top: 64px; color: var(--ink); }
+  .package::before { content: ""; position: absolute; top: -40px; left: 50%; width: 120px; height: 44px; margin-left: -60px; background: var(--paper); border: 4px solid var(--ink); border-bottom: 0; border-radius: 16px 16px 0 0;
+    -webkit-mask: radial-gradient(ellipse 22px 8px at 50% 18px, transparent 98%, #000 100%); mask: radial-gradient(ellipse 22px 8px at 50% 18px, transparent 98%, #000 100%); }
+  .pkg { position: relative; border: 4px solid var(--ink); border-radius: 14px; overflow: hidden; background: linear-gradient(165deg, #ffb3da 0%, var(--lavender) 60%, #9fc0ff 100%); box-shadow: 12px 12px 0 rgba(20, 10, 60, .5); }
+  .pkg-head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--ink); color: var(--gold); font: 11px/1.3 var(--pixel); letter-spacing: .5px; }
+  .pkg-head span:last-child { color: var(--blush); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .stamp { position: absolute; top: 44px; right: 12px; z-index: 3; padding: 4px 10px; background: var(--gold); border: 3px solid var(--ink); font: 13px var(--pixel); transform: rotate(10deg); box-shadow: 3px 3px 0 var(--ink); }
+  .window { position: relative; margin: 16px 16px 0; aspect-ratio: 4 / 3; border: 4px solid var(--ink); border-radius: 50% 50% 18px 18px / 30% 30% 18px 18px; overflow: hidden;
+    background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, .5), transparent 40%), linear-gradient(180deg, var(--night), var(--violet) 70%, var(--rose)); }
+  .window::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(1.5px 1.5px at 20% 30%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 80% 20%, var(--gold) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 60% 70%, #fff 50%, transparent 51%), radial-gradient(2px 2px at 15% 80%, var(--blush) 50%, transparent 51%); }
+  .window::after { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .5) 38%, transparent 46%, transparent 60%, rgba(255, 255, 255, .25) 64%, transparent 68%); }
+  .window .mascot { position: absolute; left: 22%; top: 8%; width: 56%; filter: hue-rotate(var(--hue, 0deg)) drop-shadow(0 0 18px rgba(255, 200, 240, .7)); animation: float 3.2s ease-in-out infinite; }
+  .emoji { position: absolute; right: 10px; bottom: 10px; z-index: 2; display: grid; place-items: center; width: 64px; height: 64px; font-size: 36px; background: var(--paper); border: 3px solid var(--ink); border-radius: 50%; box-shadow: 3px 3px 0 var(--ink); transform: rotate(-10deg); }
+  .pkg-face { padding: 14px 16px 18px; text-align: center; }
+  .who { margin: 0; font: 13px var(--pixel); color: var(--ink); }
+  .type { font-size: 84px; line-height: 1; color: #fff; letter-spacing: 3px; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 4px 0 var(--magenta), -4px 0 var(--cyan), 5px 6px 0 var(--ink); }
+  .name { display: table; margin: 10px auto 0; padding: 2px 12px; font-size: 24px; line-height: 1.35; background: var(--gold); border: 3px solid var(--ink); transform: rotate(-1.5deg); box-shadow: 3px 3px 0 var(--ink); }
+  .desc { margin: 14px 0 0; font-weight: 600; }
+  .quote { position: relative; margin: 14px auto 0; padding: 10px 14px; max-width: 92%; background: #fff; border: 3px solid var(--ink); border-radius: 18px; font-weight: 800; box-shadow: 3px 3px 0 var(--ink); }
+  .spec { margin: 0 12px 12px; padding: 16px 14px; background: var(--paper); border: 3px solid var(--ink); }
+  .spec h3 { display: flex; justify-content: space-between; margin: 0 0 12px; padding-bottom: 6px; font: 12px var(--pixel); color: var(--dim); border-bottom: 2px solid var(--ink); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { padding: 8px 4px; text-align: center; background: #fff; border: 2px solid var(--ink); }
+  .stat b { display: block; font: 400 24px/1.1 var(--display); color: var(--pink); }
+  .stat span { display: block; margin-top: 4px; font: 10px/1.3 var(--pixel); }
+  .bars { display: grid; gap: 10px; font: 11px var(--pixel); }
+  .bar { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; gap: 8px; }
   .bar span:first-child { text-align: right; }
-  .bar span:last-child { text-align: left; }
-  .track { height: 14px; border: 2px solid #fff; border-radius: 99px; background: var(--blue); overflow: hidden; box-shadow: 0 0 0 1px #c9bdf0; }
-  .fill { height: 100%; background: linear-gradient(90deg, #ff9fd0, var(--pink)); }
-  .reasons { margin-top: 28px; padding-top: 20px; border-top: 2px dashed #c9bdf0; text-align: left; }
-  .reasons h3 { font-size: 22px; font-weight: 400; margin: 0 0 8px; }
-  .reasons ol { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-weight: 500; }
-  .reasons li::marker { font-weight: 800; color: var(--pink); }
-  .stats { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stat { padding: 10px 4px; border: 2px solid #e3d9ff; box-shadow: 0 4px 12px rgba(123, 111, 214, .2); border-radius: 16px; }
-  .stat b { display: block; font: 400 26px/1.1 "Black Han Sans", sans-serif; color: var(--pink); }
-  .stat span { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; line-height: 1.3; }
-  .nick { margin: 18px 0 0; text-align: center; font-weight: 700; color: var(--dim); }
-  .nick b { display: block; margin-top: 4px; font-size: 28px; font-weight: 400; color: #6d8dff; text-shadow: 0 0 14px rgba(122, 162, 255, .5); }
-  .loading { margin-top: 40px; padding: 40px 20px; text-align: center; font-weight: 700; }
-  .loading .display { font-size: 24px; margin: 12px 0 4px; }
-  .spinner { font-size: 64px; animation: wobble .6s infinite alternate ease-in-out; filter: drop-shadow(0 0 16px rgba(255, 200, 230, .9)); }
-  @keyframes wobble { from { transform: rotate(-12deg) scale(1); } to { transform: rotate(12deg) scale(1.15); } }
-  .ttl { margin: 14px 0 0; text-align: center; font-weight: 800; color: var(--blush); }
-  .row { display: flex; gap: 10px; margin-top: 16px; }
-  .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); border-radius: 999px; }
+  .track { height: 14px; background: repeating-linear-gradient(90deg, var(--blue) 0 10px, #9fc0ff 10px 12px); border: 2px solid var(--ink); }
+  .fill { height: 100%; background: repeating-linear-gradient(90deg, var(--pink) 0 10px, #ff9fd0 10px 12px); border-right: 2px solid var(--ink); }
+  .reasons { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-weight: 600; font-size: 15px; }
+  .reasons li::marker { font: 12px var(--pixel); color: var(--pink); }
+  .nick { margin: 16px 0 0; text-align: center; font: 12px var(--pixel); color: var(--dim); }
+  .nick b { display: table; margin: 6px auto 0; padding: 4px 14px; font: 400 24px/1.3 var(--display); color: #fff; background: var(--blue); border: 3px solid var(--ink); border-radius: 999px; box-shadow: 3px 3px 0 var(--ink); transform: rotate(1.5deg); }
+  .pkg-foot { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; padding: 12px; background: #fff; border-top: 4px solid var(--ink); font: 11px/1.5 var(--pixel); }
+  .pkg-foot svg { display: block; width: 112px; height: 46px; }
+  .pkg-foot p { margin: 0; }
+  .warn { display: inline-block; margin-top: 4px; padding: 1px 6px; background: var(--gold); border: 2px solid var(--ink); }
+  .ttl { color: var(--red); }
+  .row { display: flex; gap: 12px; margin-top: 24px; }
+  .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); border: 3px solid var(--ink); background: var(--paper); }
   .row button { width: auto; margin: 0; padding: 10px 16px; font-size: 15px; }
-  footer { margin-top: 56px; font-size: 13px; font-weight: 600; text-align: center; color: var(--blush); }
+
+  .loading { text-align: center; }
+  .loading .mascot { width: 140px; height: 146px; animation: hop .5s steps(2) infinite alternate; }
+  @keyframes hop { to { transform: translateY(-10px); } }
+  .loading .display { font-size: 24px; margin: 8px 0 4px; }
+  .loading p { margin: 6px 0 0; font-family: var(--pixel); }
+  .progress { height: 18px; margin: 12px auto 0; max-width: 260px; border: 3px solid var(--ink); background: #fff; }
+  .progress i { display: block; height: 100%; background: repeating-linear-gradient(90deg, var(--pink) 0 12px, transparent 12px 16px); animation: fill 2s steps(10) forwards; transform-origin: left; }
+  @keyframes fill { from { transform: scaleX(0); } }
+  footer { margin-top: 56px; text-align: center; font: 11px/1.7 var(--pixel); color: var(--blush); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd1e6"/><stop offset="1" stop-color="#9fc0ff"/></linearGradient>
+    <linearGradient id="iris" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232465"/><stop offset=".55" stop-color="#4a6bff"/><stop offset="1" stop-color="#a9d6ff"/></linearGradient>
+    <pattern id="scan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.4" fill="#fff" opacity=".35"/></pattern>
+    <symbol id="mascot" viewBox="0 0 240 250">
+      <line x1="120" y1="44" x2="120" y2="16" stroke="#2e2160" stroke-width="5"/>
+      <path d="M120 2l5 9 10 2-7 7 2 10-10-5-10 5 2-10-7-7 10-2z" fill="#ffe27a" stroke="#2e2160" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="28" y="42" width="184" height="152" rx="30" fill="#b8a9ff" stroke="#2e2160" stroke-width="5"/>
+      <path d="M186 50c14 6 22 18 22 34v74c0 16-8 28-22 32z" fill="#9d8cf0"/>
+      <rect x="48" y="60" width="144" height="110" rx="20" fill="url(#screen)" stroke="#2e2160" stroke-width="4"/>
+      <rect x="48" y="60" width="144" height="110" rx="20" fill="url(#scan)"/>
+      <ellipse cx="92" cy="110" rx="18" ry="25" fill="url(#iris)" stroke="#2e2160" stroke-width="3.5"/>
+      <ellipse cx="148" cy="110" rx="18" ry="25" fill="url(#iris)" stroke="#2e2160" stroke-width="3.5"/>
+      <circle cx="85" cy="99" r="7.5" fill="#fff"/><circle cx="141" cy="99" r="7.5" fill="#fff"/>
+      <circle cx="98" cy="121" r="3.5" fill="#fff"/><circle cx="154" cy="121" r="3.5" fill="#fff"/>
+      <path d="M92 86l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff"/>
+      <path d="M72 86q20-12 38 2M130 88q18-14 38-2" stroke="#2e2160" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <ellipse cx="70" cy="140" rx="12" ry="6" fill="#ff5fae" opacity=".6"/><ellipse cx="170" cy="140" rx="12" ry="6" fill="#ff5fae" opacity=".6"/>
+      <path d="M110 142q5 7 10 0q5 7 10 0" stroke="#2e2160" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <circle cx="62" cy="182" r="5" fill="#ff5fae" stroke="#2e2160" stroke-width="2.5"/><circle cx="78" cy="182" r="5" fill="#7aa2ff" stroke="#2e2160" stroke-width="2.5"/>
+      <rect x="150" y="178" width="40" height="7" rx="3.5" fill="#2e2160" opacity=".5"/>
+      <rect x="98" y="194" width="44" height="18" fill="#9d8cf0" stroke="#2e2160" stroke-width="4"/>
+      <path d="M120 206l-26-12v26zM120 206l26-12v26z" fill="#ff4d6d" stroke="#2e2160" stroke-width="3.5" stroke-linejoin="round"/>
+      <circle cx="120" cy="206" r="7" fill="#ff4d6d" stroke="#2e2160" stroke-width="3.5"/>
+      <rect x="64" y="222" width="112" height="18" rx="9" fill="#b8a9ff" stroke="#2e2160" stroke-width="4"/>
+    </symbol>
+    <symbol id="px-heart" viewBox="0 0 7 6"><path d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z" fill="#ff5fae"/><path d="M1 1h1v1H1z" fill="#fff"/></symbol>
+    <symbol id="px-star" viewBox="0 0 7 7"><path d="M3 0h1v2h1v1h2v1H5v1H4v2H3V5H2V4H0V3h2V2h1z" fill="#ffe27a"/></symbol>
+  </defs>
+</svg>
 <main>
-  <h1>KOTI</h1>
-  <p class="sub">Ko Type Indicator · AI 전용 MBTI <small>(비공식)(아주 비공식)</small></p>
-  <p class="lead display">매일 부려먹는 내 AI,<br><mark>속으로 무슨 생각</mark> 할까?</p>
+  <header class="hero">
+    <div class="kv">
+      <div class="kv-frame"><svg class="mascot" viewBox="0 0 240 250" role="img" aria-label="KOTI 마스코트"><use href="#mascot"/></svg></div>
+      <span class="tape a"></span><span class="tape b"></span>
+      <span class="sticker tag">VOL.1 · AI 전용</span>
+      <span class="sticker round">AI도<br>성격<br>있음</span>
+      <span class="sticker burst">비공식<br>(아주)</span>
+      <svg class="sprite s1 px"><use href="#px-star"/></svg>
+      <svg class="sprite s2 px"><use href="#px-heart"/></svg>
+      <svg class="sprite s3 px"><use href="#px-star"/></svg>
+    </div>
+    <h1 class="glitch" data-text="KOTI">KOTI</h1>
+    <p class="label">KO TYPE INDICATOR · AI 전용 MBTI</p>
+    <p class="lead">매일 부려먹는 내 AI,<br><mark>속으로 무슨 생각</mark> 할까?</p>
+  </header>
 
-  <section id="loading" class="loading box" hidden>
-    <div class="spinner">🔮</div>
+  <section id="loading" class="paper loading" hidden>
+    <svg class="mascot" viewBox="0 0 240 250" aria-hidden="true"><use href="#mascot"/></svg>
     <p class="display">KOTI 판정 엔진 가동</p>
+    <div class="progress"><i></i></div>
     <p id="loading-step"></p>
   </section>
 
-  <section id="expired" class="loading box" hidden>
-    <div class="spinner">🔥</div>
-    <p class="display">판정서 소각 완료</p>
-    <p>24시간이 지나 이 AI의 본색은 증발했습니다.</p>
+  <section id="expired" class="paper loading" hidden>
+    <svg class="mascot" viewBox="0 0 240 250" aria-hidden="true" style="filter:grayscale(1)"><use href="#mascot"/></svg>
+    <p class="display">판정서 소각 완료 🔥</p>
+    <p>유통기한 24시간이 지나 이 AI의 본색은 증발했습니다.</p>
     <a class="btn blue" href="./">내 AI 본색 까보기 →</a>
   </section>
 
   <section id="result" hidden>
-    <div class="card box">
-      <div class="stamp display">✦ 판정완료</div>
-      <p class="who" id="r-who"></p>
-      <div class="emoji" id="r-emoji"></div>
-      <div class="type" id="r-type"></div>
-      <div class="name"><span id="r-name"></span></div>
-      <p class="desc" id="r-desc"></p>
-      <p class="quote" id="r-quote"></p>
-      <div class="stats" id="r-stats"></div>
-      <div class="bars" id="r-bars"></div>
-      <div class="reasons">
-        <h3 class="display" id="r-evidence-title"></h3>
-        <ol id="r-reasons"></ol>
-        <p class="nick" id="r-nick-box" hidden>AI가 붙여준 당신의 별명<b class="display" id="r-nick"></b></p>
+    <div class="package">
+      <div class="pkg">
+        <div class="pkg-head"><span>KOTI TOY SERIES ✦ VOL.1</span><span id="r-edition"></span></div>
+        <div class="stamp">판정완료!</div>
+        <div class="window">
+          <svg class="mascot" viewBox="0 0 240 250" aria-hidden="true"><use href="#mascot"/></svg>
+          <div class="emoji" id="r-emoji"></div>
+        </div>
+        <div class="pkg-face">
+          <p class="who" id="r-who"></p>
+          <div class="type" id="r-type"></div>
+          <div class="name" id="r-name"></div>
+          <p class="desc" id="r-desc"></p>
+          <p class="quote" id="r-quote"></p>
+        </div>
+        <div class="spec">
+          <h3><span>SPEC 판정 지표</span><span>★★★</span></h3>
+          <div class="stats" id="r-stats"></div>
+        </div>
+        <div class="spec">
+          <h3><span>INGREDIENTS 성분표</span><span>100%</span></h3>
+          <div class="bars" id="r-bars"></div>
+        </div>
+        <div class="spec">
+          <h3><span id="r-evidence-title"></span><span>RECEIPT</span></h3>
+          <ol class="reasons" id="r-reasons"></ol>
+          <p class="nick" id="r-nick-box" hidden>AI가 붙여준 당신의 별명<b id="r-nick"></b></p>
+        </div>
+        <div class="pkg-foot">
+          <svg id="r-barcode" viewBox="0 0 112 46" aria-hidden="true"></svg>
+          <div>
+            <p id="r-maker"></p>
+            <p class="ttl" id="r-ttl"></p>
+            <span class="warn">⚠ 과몰입 주의 · 먹지 마세요</span>
+          </div>
+        </div>
       </div>
     </div>
     <a class="btn blue" href="./">내 AI도 까보기 →</a>
     <button type="button" id="story" class="insta">인스타 스토리용 이미지 저장 📸</button>
     <button type="button" id="share">친구한테 자랑하기</button>
     <div class="row">
-      <input class="box" id="link" readonly aria-label="결과 링크" onfocus="this.select()">
+      <input id="link" readonly aria-label="결과 링크" onfocus="this.select()">
       <button type="button" id="copy-link" class="ghost">링크 복사</button>
     </div>
-    <p class="ttl" id="r-ttl"></p>
   </section>
 
   <div id="test">
-  <section>
-    <h2><b>1</b>수상한 검사지 복사</h2>
-    <pre class="box" id="prompt"></pre>
-    <button type="button" id="copy">검사지 복사하기</button>
-  </section>
+    <section class="paper">
+      <h2><b>1</b>수상한 검사지 복사</h2>
+      <pre id="prompt"></pre>
+      <button type="button" id="copy">검사지 복사하기</button>
+    </section>
 
-  <section>
-    <h2><b>2</b>AI한테 들이밀기</h2>
-    <p class="hint">ChatGPT, Claude, Gemini… 평소 부려먹던 그 대화창에서 해야 본색이 나옴.</p>
-  </section>
+    <section class="paper">
+      <h2><b>2</b>AI한테 들이밀기</h2>
+      <p class="hint">ChatGPT, Claude, Gemini… 평소 부려먹던 그 대화창에서 해야 본색이 나옴.</p>
+    </section>
 
-  <section>
-    <h2><b>3</b>AI 자백 붙여넣기</h2>
-    <textarea class="box" id="answer" placeholder="KOTI|Claude|ABBAABABBAABBABAABAB&#10;별명|…&#10;(AI 답변 통째로 붙여넣기)"></textarea>
-    <p class="error" id="error" hidden>AI가 형식을 안 지켰네요. 괘씸. 답변을 통째로 붙여넣거나 다시 시켜보세요.</p>
-    <button type="button" id="analyze">본색 까보기</button>
-  </section>
+    <section class="paper">
+      <h2><b>3</b>AI 자백 붙여넣기</h2>
+      <textarea id="answer" placeholder="KOTI|Claude|ABBAABABBAABBABAABAB&#10;별명|…&#10;(AI 답변 통째로 붙여넣기)"></textarea>
+      <p class="error" id="error" hidden>AI가 형식을 안 지켰네요. 괘씸. 답변을 통째로 붙여넣거나 다시 시켜보세요.</p>
+      <button type="button" id="analyze">본색 까보기</button>
+    </section>
   </div>
 
   <footer>답변은 어디에도 저장 안 함. 우리도 모름. 진짜로.<br>대신 AI가 쓴 문장은 결과 링크 안에 압축돼 담기니, 공유 전에 한 번 읽어보기.</footer>

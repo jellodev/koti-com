@@ -295,6 +295,18 @@ function statsOf(scores, rand) {
   });
 }
 
+function barcode(seed) {
+  const rand = rng(hash(seed));
+  let x = 2;
+  const bars = [];
+  while (x < 108) {
+    const w = 1 + Math.floor(rand() * 3);
+    bars.push(`<rect x="${x}" y="0" width="${w}" height="38" fill="#2e2160"/>`);
+    x += w + 1 + Math.floor(rand() * 3);
+  }
+  return `${bars.join("")}<text x="56" y="45" font-size="7" text-anchor="middle" fill="#2e2160" font-family="monospace">${hash(seed)}</text>`;
+}
+
 function renderResult(result) {
   const { answers, ai, nick, expiresAt } = result;
   const rand = rng(hash(answers + ai));
@@ -305,6 +317,10 @@ function renderResult(result) {
   const reasons = reasonsOf(result, scores, rand);
 
   $("r-who").textContent = `${who}의 본색은`;
+  $("r-edition").textContent = `${who} EDITION`;
+  $("r-maker").textContent = `제조: ${who} · No.${hash(answers + ai) % 100000}`;
+  $("r-barcode").innerHTML = barcode(answers + type);
+  $("result").style.setProperty("--hue", `${hash(type) % 360}deg`);
   $("r-emoji").textContent = emoji;
   $("r-type").textContent = type;
   $("r-name").textContent = name;
@@ -345,7 +361,7 @@ function renderResult(result) {
 
   const url = location.href;
   const left = Math.max(0, expiresAt - Date.now());
-  $("r-ttl").textContent = `이 판정서는 ${Math.floor(left / 3600000)}시간 ${Math.floor((left % 3600000) / 60000)}분 뒤 소각됨 🔥`;
+  $("r-ttl").textContent = `유통기한 ${Math.floor(left / 3600000)}시간 ${Math.floor((left % 3600000) / 60000)}분 · 이후 소각 🔥`;
   const shareText = [
     `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}`,
     nick && `${who}가 붙여준 내 별명: ${nick}`,
