@@ -18,4 +18,4 @@ python3 -m http.server
 ## 배포 (GitHub Pages)
 
 저장소 Settings → Pages → Source 를 **Deploy from a branch**, `main` / `(root)` 로 설정.
-`og.png` 절대경로가 `https://jellodev.github.io/koti/` 기준이므로 저장소 위치가 다르면 `index.html` 의 og 메타를 바꾼다.
+`og.png` 절대경로가 `https://jellodev.github.io/koti-com/` 기준이므로 저장소 위치가 다르면 `index.html` 의 og 메타를 바꾼다.
