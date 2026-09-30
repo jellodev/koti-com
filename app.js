@@ -77,6 +77,13 @@ function typeOf(scores) {
   return scores.map((a, i) => AXES[i][a > PER_AXIS / 2 ? 0 : 1]).join("");
 }
 
+function resultUrl({ answers, ai }) {
+  const url = new URL(location.pathname, location.origin);
+  url.searchParams.set("a", answers);
+  if (ai) url.searchParams.set("ai", ai);
+  return url.href;
+}
+
 function renderResult({ answers, ai }) {
   const scores = score(answers);
   const type = typeOf(scores);
@@ -102,18 +109,14 @@ function renderResult({ answers, ai }) {
     })
   );
 
-  const url = new URL(location.pathname, location.origin);
-  url.searchParams.set("a", answers);
-  if (ai) url.searchParams.set("ai", ai);
-  history.replaceState(null, "", url);
-
+  const url = resultUrl({ answers, ai });
   const shareText = `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}\n너의 AI 본색은?`;
-  $("share").onclick = () => share(shareText, url.href);
-  $("share-x").href = `https://x.com/intent/post?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url.href)}`;
-  $("link").value = url.href;
+  $("share").onclick = () => share(shareText, url);
+  $("share-x").href = `https://x.com/intent/post?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`;
+  $("link").value = url;
 
+  $("test").hidden = true;
   $("result").hidden = false;
-  $("result").scrollIntoView({ behavior: "smooth" });
 }
 
 async function share(text, url) {
@@ -150,12 +153,9 @@ $("copy-link").onclick = async () => {
 $("analyze").onclick = () => {
   const parsed = parse($("answer").value);
   $("error").hidden = !!parsed;
-  if (parsed) renderResult(parsed);
+  if (parsed) location.href = resultUrl(parsed);
 };
 
 const params = new URLSearchParams(location.search);
 const shared = parse(`KOTI|${params.get("ai") ?? ""}|${params.get("a") ?? ""}`);
-if (shared) {
-  renderResult(shared);
-  $("cta").hidden = false;
-}
+if (shared) renderResult(shared);
