@@ -298,6 +298,7 @@ function renderResult(result) {
     "너의 AI 본색은?",
   ].filter(Boolean).join("\n");
   $("share").onclick = () => share(shareText, url);
+  $("story").onclick = () => saveStory({ who, type, emoji, name, nick, bubble: msg ? [`${who}의 속마음`, msg] : ["AI 한줄평", headline] });
   $("link").value = url;
 
   $("loading").hidden = true;
@@ -311,6 +312,153 @@ async function showLoading() {
     $("loading-step").textContent = step;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
+}
+
+const STORY = { w: 1080, h: 1920, bg: "#ffe94d", paper: "#fffdf5", ink: "#111", red: "#ff3b30", blue: "#2d5bff" };
+const DISPLAY_FONT = '"Black Han Sans", sans-serif';
+const BODY_FONT = "Pretendard, system-ui, sans-serif";
+
+function wrap(ctx, text, width, maxLines) {
+  const lines = [];
+  let line = "";
+  for (const ch of text) {
+    if (ctx.measureText(line + ch).width <= width) {
+      line += ch;
+      continue;
+    }
+    const cut = line.lastIndexOf(" ");
+    lines.push(cut > line.length / 2 ? line.slice(0, cut) : line);
+    line = (cut > line.length / 2 ? line.slice(cut + 1) : "") + ch.trimStart();
+    if (lines.length === maxLines) {
+      lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1) + "…";
+      return lines;
+    }
+  }
+  return line ? [...lines, line] : lines;
+}
+
+function drawText(ctx, value, y, font, color) {
+  ctx.font = font;
+  ctx.fillStyle = color;
+  ctx.fillText(value, STORY.w / 2, y);
+}
+
+async function renderStory({ who, type, emoji, name, nick, bubble }) {
+  const all = [who, type, name, nick, ...bubble, "KOTI의 본색은 너의 AI 별명 속마음 한줄평?"].join("");
+  await Promise.all([
+    document.fonts.load(`100px ${DISPLAY_FONT}`, all),
+    document.fonts.load(`800 100px ${BODY_FONT}`, all),
+    document.fonts.load(`700 100px ${BODY_FONT}`, all),
+  ]);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = STORY.w;
+  canvas.height = STORY.h;
+  const ctx = canvas.getContext("2d");
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  const cx = STORY.w / 2;
+
+  ctx.font = `800 44px ${BODY_FONT}`;
+  const bubbleLines = wrap(ctx, bubble[1], 700, 3);
+  const top = 440;
+  const emojiY = top + 150;
+  const typeY = emojiY + 200;
+  const nameY = typeY + 150;
+  const nickY = nick ? nameY + 110 : nameY;
+  const bubbleTop = (nick ? nickY + 70 : nameY) + 80;
+  const bubbleH = 100 + bubbleLines.length * 60;
+  const bottom = bubbleTop + bubbleH + 60;
+
+  ctx.fillStyle = STORY.bg;
+  ctx.fillRect(0, 0, STORY.w, STORY.h);
+  ctx.translate(0, (STORY.h - (bottom + 225 - 170)) / 2 - 170);
+
+  ctx.save();
+  ctx.translate(cx, 250);
+  ctx.rotate((-4 * Math.PI) / 180);
+  ctx.font = `160px ${DISPLAY_FONT}`;
+  ctx.fillStyle = STORY.ink;
+  ctx.fillText("KOTI", 10, 10);
+  ctx.fillStyle = STORY.red;
+  ctx.fillText("KOTI", 0, 0);
+  ctx.lineWidth = 5;
+  ctx.strokeStyle = STORY.ink;
+  ctx.strokeText("KOTI", 0, 0);
+  ctx.restore();
+
+  drawText(ctx, `${who}의 본색은`, 380, `700 46px ${BODY_FONT}`, STORY.ink);
+
+  ctx.fillStyle = STORY.ink;
+  ctx.beginPath();
+  ctx.roundRect(98, top + 18, 920, bottom - top, 36);
+  ctx.fill();
+  ctx.fillStyle = STORY.paper;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.roundRect(80, top, 920, bottom - top, 36);
+  ctx.fill();
+  ctx.stroke();
+
+  drawText(ctx, emoji, emojiY, `170px ${BODY_FONT}`, STORY.ink);
+
+  ctx.font = `210px ${DISPLAY_FONT}`;
+  ctx.fillStyle = STORY.ink;
+  ctx.fillText(type, cx + 10, typeY + 10);
+  ctx.fillStyle = STORY.red;
+  ctx.fillText(type, cx, typeY);
+  ctx.lineWidth = 6;
+  ctx.strokeText(type, cx, typeY);
+
+  ctx.font = `68px ${DISPLAY_FONT}`;
+  const nameW = Math.min(ctx.measureText(name).width + 40, 880);
+  ctx.fillStyle = STORY.bg;
+  ctx.fillRect(cx - nameW / 2, nameY - 44, nameW, 88);
+  drawText(ctx, name, nameY, `68px ${DISPLAY_FONT}`, STORY.ink);
+
+  if (nick) {
+    drawText(ctx, "AI가 붙여준 내 별명", nickY, `700 36px ${BODY_FONT}`, "#555");
+    drawText(ctx, nick, nickY + 70, `72px ${DISPLAY_FONT}`, STORY.blue);
+  }
+
+  ctx.fillStyle = STORY.ink;
+  ctx.beginPath();
+  ctx.roundRect(150, bubbleTop, 780, bubbleH, [28, 28, 28, 0]);
+  ctx.fill();
+  drawText(ctx, bubble[0], bubbleTop + 55, `700 32px ${BODY_FONT}`, STORY.bg);
+  bubbleLines.forEach((line, i) => drawText(ctx, line, bubbleTop + 115 + i * 60, `800 44px ${BODY_FONT}`, STORY.paper));
+
+  drawText(ctx, "너의 AI 본색은?", bottom + 90, `64px ${DISPLAY_FONT}`, STORY.ink);
+  const site = `${location.host}${location.pathname}`.replace(/\/$/, "");
+  ctx.font = `700 38px ${BODY_FONT}`;
+  const siteW = ctx.measureText(site).width + 60;
+  ctx.fillStyle = STORY.paper;
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.roundRect(cx - siteW / 2, bottom + 150, siteW, 70, 35);
+  ctx.fill();
+  ctx.stroke();
+  drawText(ctx, site, bottom + 186, `700 38px ${BODY_FONT}`, STORY.ink);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+}
+
+async function saveStory(story) {
+  const file = new File([await renderStory(story)], `koti-${story.type}.png`, { type: "image/png" });
+  if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (e) {
+      if (e.name === "AbortError") return;
+    }
+  }
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(file);
+  link.download = file.name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
 async function share(text, url) {

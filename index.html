@@ -35,6 +35,7 @@
   textarea:focus, input:focus { box-shadow: 6px 6px 0 var(--red); }
   button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 3px solid var(--ink); border-radius: 12px; background: var(--red); color: #fff; font: 800 19px/1.4 Pretendard, system-ui, sans-serif; letter-spacing: -0.3px; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); transition: transform .05s, box-shadow .05s; }
   button:active, .btn:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--ink); }
+  .insta { background: linear-gradient(45deg, #f58529, #dd2a7b 50%, #8134af); }
   .ghost { background: var(--paper); color: var(--ink); }
   .blue { background: var(--blue); }
   .hint { margin: 0; font-weight: 600; }
@@ -113,6 +114,7 @@
       </div>
     </div>
     <a class="btn blue" href="./">내 AI도 까보기 →</a>
+    <button type="button" id="story" class="insta">인스타 스토리용 이미지 저장 📸</button>
     <button type="button" id="share">친구한테 자랑하기</button>
     <div class="row">
       <input class="box" id="link" readonly aria-label="결과 링크" onfocus="this.select()">
