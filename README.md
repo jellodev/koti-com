@@ -17,5 +17,5 @@ python3 -m http.server
 
 ## 배포 (GitHub Pages)
 
-저장소 Settings → Pages → Source 를 **GitHub Actions** 로 설정. `main` 에 push 하면 `.github/workflows/deploy.yml` 이 저장소 루트를 그대로 배포한다.
+저장소 Settings → Pages → Source 를 **GitHub Actions** 로 설정. `main` 에 push 하면 `.github/workflows/deploy.yml` 이 `app.js` 를 `index.html` 에 인라인한 뒤 저장소 루트를 배포한다. 두 파일이 따로 캐시되면 새 HTML과 옛 JS가 섞여 결과 화면이 깨지기 때문이다.
 `og.png` 절대경로가 `https://jellodev.github.io/koti-com/` 기준이므로 저장소 위치가 다르면 `index.html` 의 og 메타를 바꾼다.

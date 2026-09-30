@@ -163,10 +163,12 @@ async function readToken(token) {
   try {
     const bytes = Uint8Array.from(atob(token.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
     const json = new TextDecoder().decode(await pipe(bytes, new DecompressionStream("deflate-raw")));
-    const [answers, ai, nick, e1, e2, e3, e4, createdAt] = JSON.parse(json);
+    const fields = JSON.parse(json);
+    const [answers, ai, nick] = fields;
+    const createdAt = fields.at(-1);
     const core = parse(`KOTI|${ai}|${answers}`);
     if (!core || !Number.isFinite(createdAt)) return null;
-    return { ...core, nick: clean(nick), evidence: [e1, e2, e3, e4].map(clean), expiresAt: createdAt * 1000 + TTL_MS };
+    return { ...core, nick: clean(nick), evidence: fields.slice(3, 7).map(clean), expiresAt: createdAt * 1000 + TTL_MS };
   } catch {
     return null;
   }
