@@ -54,6 +54,12 @@
   .bar span:last-child { text-align: left; }
   .track { height: 14px; border: 2px solid var(--ink); border-radius: 99px; background: var(--blue); overflow: hidden; }
   .fill { height: 100%; background: var(--red); border-right: 2px solid var(--ink); }
+  .reasons { margin-top: 28px; padding-top: 20px; border-top: 3px dashed var(--ink); text-align: left; }
+  .reasons h3 { font-size: 22px; font-weight: 400; margin: 0 0 8px; }
+  .reasons ol { margin: 0; padding-left: 22px; display: grid; gap: 8px; font-weight: 500; }
+  .reasons li::marker { font-weight: 800; color: var(--red); }
+  .rx { margin: 16px 0 0; padding: 12px 14px; background: var(--bg); border: 2px solid var(--ink); border-radius: 10px; font-weight: 700; }
+  .rx b { color: var(--red); margin-right: 8px; }
   .row { display: flex; gap: 10px; margin-top: 16px; }
   .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); }
   .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 15px; }
@@ -76,6 +82,11 @@
       <p class="desc" id="r-desc"></p>
       <p class="quote" id="r-quote"></p>
       <div class="bars" id="r-bars"></div>
+      <div class="reasons">
+        <h3 class="display">판정 사유</h3>
+        <ol id="r-reasons"></ol>
+        <p class="rx"><b>처방</b><span id="r-rx"></span></p>
+      </div>
     </div>
     <a class="btn blue" href="./">내 AI도 까보기 →</a>
     <button type="button" id="share">친구한테 자랑하기</button>
