@@ -375,7 +375,10 @@ function renderResult(result) {
   $("story").onclick = async () => {
     const file = await story;
     if (file) saveStory(file);
-    else flash($("story"), "이 브라우저에선 이미지 저장이 안 돼요 ㅠ 캡처해주세요");
+    else {
+      track("save_story", { method: "unsupported" });
+      flash($("story"), "이 브라우저에선 이미지 저장이 안 돼요 ㅠ 캡처해주세요");
+    }
   };
   $("link").value = url;
 
@@ -643,10 +646,15 @@ async function renderStory({ who, type, emoji, name, nick }) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
+function track(event, params) {
+  window.gtag?.("event", event, params);
+}
+
 async function saveStory(file) {
   if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file] });
+      track("save_story", { method: "share_sheet" });
       return;
     } catch (e) {
       if (e.name === "AbortError") return;
@@ -656,6 +664,7 @@ async function saveStory(file) {
   link.href = URL.createObjectURL(file);
   link.download = file.name;
   link.click();
+  track("save_story", { method: "download" });
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
@@ -663,11 +672,13 @@ async function share(text, url) {
   if (matchMedia("(pointer: coarse)").matches && navigator.share) {
     try {
       await navigator.share({ text, url });
+      track("share", { method: "share_sheet" });
       return;
     } catch (e) {
       if (e.name === "AbortError") return;
     }
   }
+  track("share", { method: "copy" });
   await copy(`${text}\n${url}`, $("share"), "복사됨! 단톡방에 투척 ㄱㄱ");
 }
 
@@ -688,9 +699,19 @@ function flash(button, label) {
 
 $("prompt").textContent = PROMPT;
 
-$("copy").onclick = () => copy(PROMPT, $("copy"), "복사됨! 이제 AI한테 들이밀어");
+$("copy").onclick = () => {
+  track("copy_prompt");
+  copy(PROMPT, $("copy"), "복사됨! 이제 AI한테 들이밀어");
+};
 
-$("copy-link").onclick = () => copy($("link").value, $("copy-link"), "복사됨!");
+$("copy-link").onclick = () => {
+  track("copy_link");
+  copy($("link").value, $("copy-link"), "복사됨!");
+};
+
+document.querySelectorAll('a[href="./"]').forEach((link) => {
+  link.addEventListener("click", () => track("retest", { from: link.closest("section").id }));
+});
 
 $("analyze").onclick = async () => {
   const parsed = parse($("answer").value);
@@ -699,7 +720,10 @@ $("analyze").onclick = async () => {
     ? `AI가 답을 ${count}개만 줬네요. 괘씸. 20개 다 달라고 다시 시켜보세요.`
     : "AI가 형식을 안 지켰네요. 괘씸. 답변을 통째로 붙여넣거나 다시 시켜보세요.";
   $("error").hidden = !!parsed;
-  if (!parsed) return;
+  if (!parsed) {
+    track("analyze_error", { reason: count ? "count" : "format" });
+    return;
+  }
   try {
     const url = await resultUrl({ ...parsed, answers: toPoles(parsed.answers) });
     try {
@@ -707,6 +731,7 @@ $("analyze").onclick = async () => {
     } catch {}
     location.href = url;
   } catch {
+    track("analyze_error", { reason: "unsupported" });
     $("error").textContent = "이 브라우저에선 안 돼요 ㅠ 크롬이나 최신 사파리로 열어주세요.";
     $("error").hidden = false;
   }
@@ -727,13 +752,21 @@ async function boot() {
   const result = token && (await readToken(token));
   if (!result) return;
   $("test").hidden = true;
-  if (takeFresh()) await showLoading();
+  const fresh = takeFresh();
+  if (fresh) await showLoading();
   if (Date.now() > result.expiresAt) {
+    track("view_expired");
     $("loading").hidden = true;
     $("expired").hidden = false;
     return;
   }
   renderResult(result);
+  track("view_result", {
+    type: typeOf(score(result.answers)),
+    ai: result.ai || "unknown",
+    source: fresh ? "own" : "shared",
+    evidence: String(result.evidence.filter(Boolean).length),
+  });
 }
 
 boot();
