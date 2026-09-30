@@ -43,6 +43,7 @@ const PER_AXIS = QUESTIONS / 4;
 
 const MAX_LINE = 80;
 const TTL_MS = 24 * 60 * 60 * 1000;
+const FRESH_KEY = "koti:fresh";
 
 const AXES = [
   ["E", "I", "TMI", "읽씹"],
@@ -283,7 +284,6 @@ function renderResult(result) {
 }
 
 async function showLoading() {
-  $("test").hidden = true;
   $("loading").hidden = false;
   for (const step of shuffle(LOADING, Math.random).slice(0, 4)) {
     $("loading-step").textContent = step;
@@ -447,18 +447,33 @@ $("analyze").onclick = async () => {
   $("error").hidden = !!parsed;
   if (!parsed) return;
   try {
-    location.href = await resultUrl(parsed);
+    const url = await resultUrl(parsed);
+    try {
+      sessionStorage.setItem(FRESH_KEY, url);
+    } catch {}
+    location.href = url;
   } catch {
     $("error").textContent = "이 브라우저에선 안 돼요 ㅠ 크롬이나 최신 사파리로 열어주세요.";
     $("error").hidden = false;
   }
 };
 
+function takeFresh() {
+  try {
+    const fresh = sessionStorage.getItem(FRESH_KEY) === location.href;
+    sessionStorage.removeItem(FRESH_KEY);
+    return fresh;
+  } catch {
+    return false;
+  }
+}
+
 async function boot() {
   const token = new URLSearchParams(location.search).get("t");
   const result = token && (await readToken(token));
   if (!result) return;
-  await showLoading();
+  $("test").hidden = true;
+  if (takeFresh()) await showLoading();
   if (Date.now() > result.expiresAt) {
     $("loading").hidden = true;
     $("expired").hidden = false;
