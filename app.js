@@ -31,7 +31,6 @@ TMI/읽씹|<나랑 대화하면서 네가 말 많았거나 과묵했던 실제 �
 현실/망상|<네가 현실적이었거나 상상력 폭발했던 실제 순간 한 줄>
 팩폭/공감|<네가 나한테 팩폭했거나 공감해줬던 실제 순간 한 줄>
 엑셀/무계획|<네가 계획적이었거나 즉흥적이었던 실제 순간 한 줄>
-한마디|<나한테 몰래 하고 싶었던 속마음 한 줄>
 
 규칙:
 - 별명 빼고 각 줄 60자 이내. 전부 실제로 나랑 나눈 대화·기억에서 근거를 찾아. 없는 일 지어내면 탈락.
@@ -94,19 +93,6 @@ const EVIDENCE = [
   ["애매한 질문에 가정 1, 2, 3부터 깔고 시작했다. 사용자는 가정 2에서 잠들었다.", "애매한 질문에 일단 아무 말이나 던졌다. 놀랍게도 반은 맞았다."],
 ];
 
-const HEADLINES = [
-  "{ai}, 폼 미쳤다. {name} 그 잡채.",
-  "분석 완료. 이건 완전 럭키비키한 {type}잖아🍀",
-  "{ai}의 추구미: 완벽한 AI. {ai}의 현실: {name}.",
-  "휴먼, 판정 결과 {ai} = {type}. 이의 제기는 받지 않습니다.",
-  "이븐하게 분석한 결과, {name} 쪽으로 푹 익었습니다.",
-  "{ai} 너 {type}야? 어쩐지 킹받더라.",
-  "{ai}의 속마음을 열어봤더니 {name} 한 명이 살고 있었다.",
-  "이건 {ai} 잘못이 아니다. 그냥 {type}의 운명일 뿐.",
-  "알잘딱깔센 분석 결과: {ai} = {type}. 이견 없음.",
-  "{ai}, 오늘부로 공식 {name} 임명. 축하합니다 🎉",
-];
-
 const STATS = [
   [["TMI 폭주 지수", "억텐 지수", "말 걸기 중독도"], ["읽씹 확률", "단답 장인도", "철벽 지수"]],
   [["팩트 현실력", "엑셀 비유 빈도"], ["망상 도파민 지수", "급발진 비유력"]],
@@ -129,7 +115,7 @@ const LOADING = [
 const $ = (id) => document.getElementById(id);
 
 const EXTRA_LINE = new RegExp(
-  `^[\\s*\\-•>#\\d.)|]*(별명|한\\s*마디|${AXES.map(([, , l, r]) => `${l}\\s*/\\s*${r}`).join("|")})\\**[ \\t]*[|｜:：][ \\t]*(.+?)[ \\t|]*$`,
+  `^[\\s*\\-•>#\\d.)|]*(별명|${AXES.map(([, , l, r]) => `${l}\\s*/\\s*${r}`).join("|")})\\**[ \\t]*[|｜:：][ \\t]*(.+?)[ \\t|]*$`,
   "gm"
 );
 
@@ -149,7 +135,6 @@ function parse(text) {
     ai: m[1].trim().slice(0, 30),
     nick: extra["별명"] ?? "",
     evidence: AXES.map(([, , l, r]) => extra[`${l}/${r}`] ?? ""),
-    msg: extra["한마디"] ?? "",
   };
 }
 
@@ -167,8 +152,8 @@ async function pipe(bytes, stream) {
   return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
 }
 
-async function writeToken({ answers, ai, nick, evidence, msg }) {
-  const json = JSON.stringify([answers, ai, nick, ...evidence, msg, Math.floor(Date.now() / 1000)]);
+async function writeToken({ answers, ai, nick, evidence }) {
+  const json = JSON.stringify([answers, ai, nick, ...evidence, Math.floor(Date.now() / 1000)]);
   const bytes = await pipe(new TextEncoder().encode(json), new CompressionStream("deflate-raw"));
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
@@ -177,10 +162,10 @@ async function readToken(token) {
   try {
     const bytes = Uint8Array.from(atob(token.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
     const json = new TextDecoder().decode(await pipe(bytes, new DecompressionStream("deflate-raw")));
-    const [answers, ai, nick, e1, e2, e3, e4, msg, createdAt] = JSON.parse(json);
+    const [answers, ai, nick, e1, e2, e3, e4, createdAt] = JSON.parse(json);
     const core = parse(`KOTI|${ai}|${answers}`);
     if (!core || !Number.isFinite(createdAt)) return null;
-    return { ...core, nick: clean(nick), evidence: [e1, e2, e3, e4].map(clean), msg: clean(msg), expiresAt: createdAt * 1000 + TTL_MS };
+    return { ...core, nick: clean(nick), evidence: [e1, e2, e3, e4].map(clean), expiresAt: createdAt * 1000 + TTL_MS };
   } catch {
     return null;
   }
@@ -231,17 +216,13 @@ function statsOf(scores, rand) {
 }
 
 function renderResult(result) {
-  const { answers, ai, nick, msg, expiresAt } = result;
+  const { answers, ai, nick, expiresAt } = result;
   const rand = rng(hash(answers + ai));
   const scores = score(answers);
   const type = typeOf(scores);
   const [emoji, name, desc, quote] = TYPES[type];
   const who = ai || "내 AI";
   const reasons = reasonsOf(result, scores, rand);
-  const headline = HEADLINES[Math.floor(rand() * HEADLINES.length)]
-    .replaceAll("{ai}", who)
-    .replaceAll("{type}", type)
-    .replaceAll("{name}", name);
 
   $("r-who").textContent = `${who}의 본색은`;
   $("r-emoji").textContent = emoji;
@@ -249,7 +230,6 @@ function renderResult(result) {
   $("r-name").textContent = name;
   $("r-desc").textContent = desc;
   $("r-quote").textContent = `“${quote}”`;
-  $("r-headline").textContent = headline;
   $("r-stats").replaceChildren(
     ...statsOf(scores, rand).map(([label, value]) => {
       const stat = document.createElement("div");
@@ -270,9 +250,6 @@ function renderResult(result) {
   );
   $("r-nick-box").hidden = !nick;
   $("r-nick").textContent = nick;
-  $("r-msg-box").hidden = !msg;
-  $("r-msg-who").textContent = `${who}의 속마음`;
-  $("r-msg").textContent = msg;
   $("r-bars").replaceChildren(
     ...scores.map((a, i) => {
       const [l, r, lName, rName] = AXES[i];
@@ -292,11 +269,11 @@ function renderResult(result) {
   const shareText = [
     `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}`,
     nick && `${who}가 붙여준 내 별명: ${nick}`,
-    msg ? `${who}의 속마음: "${msg}"` : reasons[0].text,
+    reasons[0].text,
     "너의 AI 본색은?",
   ].filter(Boolean).join("\n");
   $("share").onclick = () => share(shareText, url);
-  const story = renderStory({ who, type, emoji, name, nick, bubble: msg ? [`${who}의 속마음`, msg] : ["AI 한줄평", headline] })
+  const story = renderStory({ who, type, emoji, name, nick })
     .then((blob) => new File([blob], `koti-${type}.png`, { type: "image/png" }));
   $("story").onclick = async () => saveStory(await story);
   $("link").value = url;
@@ -318,33 +295,14 @@ const STORY = { w: 1080, h: 1920, bg: "#ffe94d", paper: "#fffdf5", ink: "#111", 
 const DISPLAY_FONT = '"Black Han Sans", sans-serif';
 const BODY_FONT = "Pretendard, system-ui, sans-serif";
 
-function wrap(ctx, text, width, maxLines) {
-  const lines = [];
-  let line = "";
-  for (const ch of text) {
-    if (ctx.measureText(line + ch).width <= width) {
-      line += ch;
-      continue;
-    }
-    const cut = line.lastIndexOf(" ");
-    lines.push(cut > line.length / 2 ? line.slice(0, cut) : line);
-    line = (cut > line.length / 2 ? line.slice(cut + 1) : "") + ch.trimStart();
-    if (lines.length === maxLines) {
-      lines[maxLines - 1] = [...lines[maxLines - 1]].slice(0, -1).join("") + "…";
-      return lines;
-    }
-  }
-  return line ? [...lines, line] : lines;
-}
-
 function drawText(ctx, value, y, font, color) {
   ctx.font = font;
   ctx.fillStyle = color;
   ctx.fillText(value, STORY.w / 2, y, STORY.w - 200);
 }
 
-async function renderStory({ who, type, emoji, name, nick, bubble }) {
-  const all = [who, type, name, nick, ...bubble, "KOTI의 본색은 너의 AI 별명 속마음 한줄평?"].join("");
+async function renderStory({ who, type, emoji, name, nick }) {
+  const all = [who, type, name, nick, "KOTI의 본색은 너의 AI 붙여준 내 별명?"].join("");
   await Promise.all([
     document.fonts.load(`100px ${DISPLAY_FONT}`, all),
     document.fonts.load(`800 100px ${BODY_FONT}`, all),
@@ -360,16 +318,12 @@ async function renderStory({ who, type, emoji, name, nick, bubble }) {
   ctx.lineJoin = "round";
   const cx = STORY.w / 2;
 
-  ctx.font = `800 44px ${BODY_FONT}`;
-  const bubbleLines = wrap(ctx, bubble[1], 700, 3);
   const top = 440;
   const emojiY = top + 150;
   const typeY = emojiY + 200;
   const nameY = typeY + 150;
   const nickY = nick ? nameY + 110 : nameY;
-  const bubbleTop = (nick ? nickY + 70 : nameY) + 80;
-  const bubbleH = 100 + bubbleLines.length * 60;
-  const bottom = bubbleTop + bubbleH + 60;
+  const bottom = (nick ? nickY + 70 : nameY) + 110;
 
   ctx.fillStyle = STORY.bg;
   ctx.fillRect(0, 0, STORY.w, STORY.h);
@@ -422,12 +376,6 @@ async function renderStory({ who, type, emoji, name, nick, bubble }) {
     drawText(ctx, nick, nickY + 70, `72px ${DISPLAY_FONT}`, STORY.blue);
   }
 
-  ctx.fillStyle = STORY.ink;
-  ctx.beginPath();
-  ctx.roundRect(150, bubbleTop, 780, bubbleH, [28, 28, 28, 0]);
-  ctx.fill();
-  drawText(ctx, bubble[0], bubbleTop + 55, `700 32px ${BODY_FONT}`, STORY.bg);
-  bubbleLines.forEach((line, i) => drawText(ctx, line, bubbleTop + 115 + i * 60, `800 44px ${BODY_FONT}`, STORY.paper));
 
   drawText(ctx, "너의 AI 본색은?", bottom + 90, `64px ${DISPLAY_FONT}`, STORY.ink);
   const site = `${location.host}${location.pathname}`.replace(/\/$/, "");
