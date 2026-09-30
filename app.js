@@ -147,19 +147,22 @@ const LOADING = [
 
 const $ = (id) => document.getElementById(id);
 
-const EXTRA_LINE = new RegExp(`^[\\s*\\-•>#\\d.)]*(별명|한마디|${AXES.map(([, , l, r]) => `${l}/${r}`).join("|")})\\**\\s*[|｜:：]\\s*(.+)$`, "gm");
+const EXTRA_LINE = new RegExp(
+  `^[\\s*\\-•>#\\d.)|]*(별명|한\\s*마디|${AXES.map(([, , l, r]) => `${l}\\s*/\\s*${r}`).join("|")})\\**[ \\t]*[|｜:：][ \\t]*(.+?)[ \\t|]*$`,
+  "gm"
+);
 
 function clean(text) {
-  const line = (text ?? "").replace(/\*+/g, "").trim().slice(0, MAX_LINE);
-  return /^기억\s*없음/.test(line) ? "" : line;
+  const line = String(text ?? "").replace(/\*+/g, "").replace(/^\s*<|>\s*$/g, "").trim().slice(0, MAX_LINE);
+  return /^["'“‘(\[]*기억\s*없/.test(line) ? "" : line;
 }
 
 function parse(text) {
-  const m = text.match(/KOTI\s*[|｜]\s*([^|｜\n]*?)\s*[|｜]\s*([AB][AB\s,]*)/i);
+  const m = text.match(/KOTI\**\s*[|｜]\s*<?([^|｜\n<>]*?)>?\s*[|｜]\s*<?(\d*\s*[AB][\dAB\s,.\/-]*)/i);
   if (!m) return null;
   const answers = m[2].replace(/[^AB]/gi, "").toUpperCase().slice(0, QUESTIONS);
   if (answers.length !== QUESTIONS) return null;
-  const extra = Object.fromEntries([...text.matchAll(EXTRA_LINE)].map(([, key, value]) => [key, clean(value)]));
+  const extra = Object.fromEntries([...text.matchAll(EXTRA_LINE)].map(([, key, value]) => [key.replace(/\s/g, ""), clean(value)]));
   return {
     answers,
     ai: m[1].trim().slice(0, 30),
@@ -195,7 +198,7 @@ async function readToken(token) {
     const json = new TextDecoder().decode(await pipe(bytes, new DecompressionStream("deflate-raw")));
     const [answers, ai, nick, e1, e2, e3, e4, msg, createdAt] = JSON.parse(json);
     const core = parse(`KOTI|${ai}|${answers}`);
-    if (!core) return null;
+    if (!core || !Number.isFinite(createdAt)) return null;
     return { ...core, nick: clean(nick), evidence: [e1, e2, e3, e4].map(clean), msg: clean(msg), expiresAt: createdAt * 1000 + TTL_MS };
   } catch {
     return null;
@@ -313,7 +316,9 @@ function renderResult(result) {
     "너의 AI 본색은?",
   ].filter(Boolean).join("\n");
   $("share").onclick = () => share(shareText, url);
-  $("story").onclick = () => saveStory({ who, type, emoji, name, nick, bubble: msg ? [`${who}의 속마음`, msg] : ["AI 한줄평", headline] });
+  const story = renderStory({ who, type, emoji, name, nick, bubble: msg ? [`${who}의 속마음`, msg] : ["AI 한줄평", headline] })
+    .then((blob) => new File([blob], `koti-${type}.png`, { type: "image/png" }));
+  $("story").onclick = async () => saveStory(await story);
   $("link").value = url;
 
   $("loading").hidden = true;
@@ -345,7 +350,7 @@ function wrap(ctx, text, width, maxLines) {
     lines.push(cut > line.length / 2 ? line.slice(0, cut) : line);
     line = (cut > line.length / 2 ? line.slice(cut + 1) : "") + ch.trimStart();
     if (lines.length === maxLines) {
-      lines[maxLines - 1] = lines[maxLines - 1].slice(0, -1) + "…";
+      lines[maxLines - 1] = [...lines[maxLines - 1]].slice(0, -1).join("") + "…";
       return lines;
     }
   }
@@ -355,7 +360,7 @@ function wrap(ctx, text, width, maxLines) {
 function drawText(ctx, value, y, font, color) {
   ctx.font = font;
   ctx.fillStyle = color;
-  ctx.fillText(value, STORY.w / 2, y);
+  ctx.fillText(value, STORY.w / 2, y, STORY.w - 200);
 }
 
 async function renderStory({ who, type, emoji, name, nick, bubble }) {
@@ -459,8 +464,7 @@ async function renderStory({ who, type, emoji, name, nick, bubble }) {
   return new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
 }
 
-async function saveStory(story) {
-  const file = new File([await renderStory(story)], `koti-${story.type}.png`, { type: "image/png" });
+async function saveStory(file) {
   if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file] });
@@ -485,8 +489,16 @@ async function share(text, url) {
       if (e.name === "AbortError") return;
     }
   }
-  await navigator.clipboard.writeText(`${text}\n${url}`);
-  flash($("share"), "복사됨! 단톡방에 투척 ㄱㄱ");
+  await copy(`${text}\n${url}`, $("share"), "복사됨! 단톡방에 투척 ㄱㄱ");
+}
+
+async function copy(text, button, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+    flash(button, label);
+  } catch {
+    flash(button, "복사 실패 ㅠ 직접 길게 눌러 복사");
+  }
 }
 
 function flash(button, label) {
@@ -497,20 +509,21 @@ function flash(button, label) {
 
 $("prompt").textContent = PROMPT;
 
-$("copy").onclick = async () => {
-  await navigator.clipboard.writeText(PROMPT);
-  flash($("copy"), "복사됨! 이제 AI한테 들이밀어");
-};
+$("copy").onclick = () => copy(PROMPT, $("copy"), "복사됨! 이제 AI한테 들이밀어");
 
-$("copy-link").onclick = async () => {
-  await navigator.clipboard.writeText($("link").value);
-  flash($("copy-link"), "복사됨!");
-};
+$("copy-link").onclick = () => copy($("link").value, $("copy-link"), "복사됨!");
 
 $("analyze").onclick = async () => {
   const parsed = parse($("answer").value);
+  $("error").textContent = "AI가 형식을 안 지켰네요. 괘씸. 답변을 통째로 붙여넣거나 다시 시켜보세요.";
   $("error").hidden = !!parsed;
-  if (parsed) location.href = await resultUrl(parsed);
+  if (!parsed) return;
+  try {
+    location.href = await resultUrl(parsed);
+  } catch {
+    $("error").textContent = "이 브라우저에선 안 돼요 ㅠ 크롬이나 최신 사파리로 열어주세요.";
+    $("error").hidden = false;
+  }
 };
 
 async function boot() {
