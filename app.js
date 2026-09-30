@@ -112,7 +112,6 @@ function renderResult({ answers, ai }) {
   const url = resultUrl({ answers, ai });
   const shareText = `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}\n너의 AI 본색은?`;
   $("share").onclick = () => share(shareText, url);
-  $("share-x").href = `https://x.com/intent/post?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(url)}`;
   $("link").value = url;
 
   $("test").hidden = true;

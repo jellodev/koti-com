@@ -19,7 +19,7 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: Pretendard, system-ui, sans-serif; line-height: 1.6; }
   main { max-width: 560px; margin: 0 auto; padding: 40px 16px 80px; }
-  .display, h1, h2, .type, .name, button, .btn { font-family: "Black Han Sans", Pretendard, sans-serif; font-weight: 400; }
+  .display, h1, h2, .type, .name { font-family: "Black Han Sans", Pretendard, sans-serif; font-weight: 400; }
   h1 { font-size: 88px; line-height: 1; margin: 0; color: var(--red); text-shadow: 5px 5px 0 var(--ink); transform: rotate(-4deg); display: inline-block; -webkit-text-stroke: 2px var(--ink); }
   .sub { margin: 12px 0 0; font-weight: 700; }
   .sub small { color: var(--dim); font-weight: 500; }
@@ -33,7 +33,7 @@
   textarea, input { width: 100%; padding: 16px; color: var(--ink); font: 15px Pretendard, system-ui, sans-serif; outline: none; }
   textarea { min-height: 120px; resize: vertical; }
   textarea:focus, input:focus { box-shadow: 6px 6px 0 var(--red); }
-  button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 3px solid var(--ink); border-radius: 12px; background: var(--red); color: #fff; font-size: 22px; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); transition: transform .05s, box-shadow .05s; }
+  button, .btn { display: block; width: 100%; margin-top: 14px; padding: 14px; border: 3px solid var(--ink); border-radius: 12px; background: var(--red); color: #fff; font: 800 19px/1.4 Pretendard, system-ui, sans-serif; letter-spacing: -0.3px; text-align: center; text-decoration: none; cursor: pointer; box-shadow: 5px 5px 0 var(--ink); transition: transform .05s, box-shadow .05s; }
   button:active, .btn:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--ink); }
   .ghost { background: var(--paper); color: var(--ink); }
   .blue { background: var(--blue); }
@@ -56,7 +56,7 @@
   .fill { height: 100%; background: var(--red); border-right: 2px solid var(--ink); }
   .row { display: flex; gap: 10px; margin-top: 16px; }
   .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); }
-  .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 16px; }
+  .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 15px; }
   footer { margin-top: 56px; font-size: 13px; font-weight: 600; text-align: center; }
 </style>
 </head>
@@ -79,7 +79,6 @@
     </div>
     <a class="btn blue" href="./">내 AI도 까보기 →</a>
     <button type="button" id="share">친구한테 자랑하기</button>
-    <a class="btn ghost" id="share-x" target="_blank" rel="noopener">X에 박제하기</a>
     <div class="row">
       <input class="box" id="link" readonly aria-label="결과 링크" onfocus="this.select()">
       <button type="button" id="copy-link" class="ghost">링크 복사</button>
