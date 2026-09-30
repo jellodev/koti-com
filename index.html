@@ -75,6 +75,7 @@
   .loading .display { font-size: 24px; margin: 12px 0 4px; }
   .spinner { font-size: 64px; animation: wobble .4s infinite alternate ease-in-out; }
   @keyframes wobble { from { transform: rotate(-15deg) scale(1); } to { transform: rotate(15deg) scale(1.15); } }
+  .ttl { margin: 14px 0 0; text-align: center; font-weight: 800; color: var(--red); }
   .row { display: flex; gap: 10px; margin-top: 16px; }
   .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); }
   .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 15px; }
@@ -91,6 +92,13 @@
     <div class="spinner">🤖</div>
     <p class="display">KOTI 판정 엔진 가동</p>
     <p id="loading-step"></p>
+  </section>
+
+  <section id="expired" class="loading box" hidden>
+    <div class="spinner">🔥</div>
+    <p class="display">판정서 소각 완료</p>
+    <p>24시간이 지나 이 AI의 본색은 증발했습니다.</p>
+    <a class="btn blue" href="./">내 AI 본색 까보기 →</a>
   </section>
 
   <section id="result" hidden>
@@ -120,6 +128,7 @@
       <input class="box" id="link" readonly aria-label="결과 링크" onfocus="this.select()">
       <button type="button" id="copy-link" class="ghost">링크 복사</button>
     </div>
+    <p class="ttl" id="r-ttl"></p>
   </section>
 
   <div id="test">
@@ -142,7 +151,7 @@
   </section>
   </div>
 
-  <footer>답변은 어디에도 저장 안 함. 우리도 모름. 진짜로.<br>대신 AI가 쓴 문장은 결과 링크에 그대로 담기니, 공유 전에 한 번 읽어보기.</footer>
+  <footer>답변은 어디에도 저장 안 함. 우리도 모름. 진짜로.<br>대신 AI가 쓴 문장은 결과 링크 안에 압축돼 담기니, 공유 전에 한 번 읽어보기.</footer>
 </main>
 <script src="app.js"></script>
 </body>

@@ -43,6 +43,7 @@ const QUESTIONS = 20;
 const PER_AXIS = QUESTIONS / 4;
 
 const MAX_LINE = 80;
+const TTL_MS = 24 * 60 * 60 * 1000;
 
 const AXES = [
   ["E", "I", "TMI", "읽씹"],
@@ -168,13 +169,6 @@ function parse(text) {
   };
 }
 
-function fromParams(params) {
-  const core = parse(`KOTI|${params.get("ai") ?? ""}|${params.get("a") ?? ""}`);
-  if (!core) return null;
-  const evidence = params.getAll("e");
-  return { ...core, nick: clean(params.get("n")), evidence: AXES.map((_, i) => clean(evidence[i])), msg: clean(params.get("m")) };
-}
-
 function score(answers) {
   return AXES.map((_, axis) =>
     Array.from({ length: PER_AXIS }, (_, k) => answers[axis + k * 4]).filter((a) => a === "A").length
@@ -185,13 +179,32 @@ function typeOf(scores) {
   return scores.map((a, i) => AXES[i][a > PER_AXIS / 2 ? 0 : 1]).join("");
 }
 
-function resultUrl({ answers, ai, nick, evidence, msg }) {
+async function pipe(bytes, stream) {
+  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());
+}
+
+async function writeToken({ answers, ai, nick, evidence, msg }) {
+  const json = JSON.stringify([answers, ai, nick, ...evidence, msg, Math.floor(Date.now() / 1000)]);
+  const bytes = await pipe(new TextEncoder().encode(json), new CompressionStream("deflate-raw"));
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+async function readToken(token) {
+  try {
+    const bytes = Uint8Array.from(atob(token.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+    const json = new TextDecoder().decode(await pipe(bytes, new DecompressionStream("deflate-raw")));
+    const [answers, ai, nick, e1, e2, e3, e4, msg, createdAt] = JSON.parse(json);
+    const core = parse(`KOTI|${ai}|${answers}`);
+    if (!core) return null;
+    return { ...core, nick: clean(nick), evidence: [e1, e2, e3, e4].map(clean), msg: clean(msg), expiresAt: createdAt * 1000 + TTL_MS };
+  } catch {
+    return null;
+  }
+}
+
+async function resultUrl(result) {
   const url = new URL(location.pathname, location.origin);
-  url.searchParams.set("a", answers);
-  if (ai) url.searchParams.set("ai", ai);
-  if (nick) url.searchParams.set("n", nick);
-  if (evidence.some(Boolean)) evidence.forEach((line) => url.searchParams.append("e", line));
-  if (msg) url.searchParams.set("m", msg);
+  url.searchParams.set("t", await writeToken(result));
   return url.href;
 }
 
@@ -234,7 +247,7 @@ function statsOf(scores, rand) {
 }
 
 function renderResult(result) {
-  const { answers, ai, nick, msg } = result;
+  const { answers, ai, nick, msg, expiresAt } = result;
   const rand = rng(hash(answers + ai));
   const scores = score(answers);
   const type = typeOf(scores);
@@ -290,7 +303,9 @@ function renderResult(result) {
     })
   );
 
-  const url = resultUrl(result);
+  const url = location.href;
+  const left = Math.max(0, expiresAt - Date.now());
+  $("r-ttl").textContent = `이 판정서는 ${Math.floor(left / 3600000)}시간 ${Math.floor((left % 3600000) / 60000)}분 뒤 소각됨 🔥`;
   const shareText = [
     `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}`,
     nick && `${who}가 붙여준 내 별명: ${nick}`,
@@ -492,11 +507,23 @@ $("copy-link").onclick = async () => {
   flash($("copy-link"), "복사됨!");
 };
 
-$("analyze").onclick = () => {
+$("analyze").onclick = async () => {
   const parsed = parse($("answer").value);
   $("error").hidden = !!parsed;
-  if (parsed) location.href = resultUrl(parsed);
+  if (parsed) location.href = await resultUrl(parsed);
 };
 
-const shared = fromParams(new URLSearchParams(location.search));
-if (shared) showLoading().then(() => renderResult(shared));
+async function boot() {
+  const token = new URLSearchParams(location.search).get("t");
+  const result = token && (await readToken(token));
+  if (!result) return;
+  await showLoading();
+  if (Date.now() > result.expiresAt) {
+    $("loading").hidden = true;
+    $("expired").hidden = false;
+    return;
+  }
+  renderResult(result);
+}
+
+boot();
