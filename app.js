@@ -370,8 +370,13 @@ function renderResult(result) {
   ].filter(Boolean).join("\n");
   $("share").onclick = () => share(shareText, url);
   const story = renderStory({ who, type, emoji, name, nick })
-    .then((blob) => new File([blob], `koti-${type}.png`, { type: "image/png" }));
-  $("story").onclick = async () => saveStory(await story);
+    .then((blob) => (blob ? new File([blob], `koti-${type}.png`, { type: "image/png" }) : null))
+    .catch(() => null);
+  $("story").onclick = async () => {
+    const file = await story;
+    if (file) saveStory(file);
+    else flash($("story"), "이 브라우저에선 이미지 저장이 안 돼요 ㅠ 캡처해주세요");
+  };
   $("link").value = url;
 
   $("loading").hidden = true;
@@ -454,7 +459,7 @@ function glitchText(ctx, value, x, y, font, offset) {
 
 function mascotImage(hue) {
   const defs = ["screen", "iris", "scan"].map((id) => document.getElementById(id).outerHTML).join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 250"><defs>${defs}<filter id="hue"><feColorMatrix type="hueRotate" values="${hue}"/></filter></defs><g filter="url(#hue)">${document.getElementById("mascot").innerHTML}</g></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="250" viewBox="0 0 240 250"><defs>${defs}<filter id="hue" color-interpolation-filters="sRGB"><feColorMatrix type="hueRotate" values="${hue}"/></filter></defs><g filter="url(#hue)">${document.getElementById("mascot").innerHTML}</g></svg>`;
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);

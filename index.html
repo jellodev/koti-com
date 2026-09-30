@@ -75,7 +75,7 @@
   .sprite.s3 { top: 44%; left: 4%; width: 18px; height: 18px; animation: blink 1.4s steps(2) infinite .2s; }
   @keyframes blink { 50% { opacity: .2; } }
 
-  .glitch { position: relative; margin: -22px 0 0; text-align: center; font: 400 104px/1 var(--display); letter-spacing: 2px; color: #fff; z-index: 5;
+  .glitch { position: relative; margin: -22px 0 0; text-align: center; font: 400 clamp(80px, 26vw, 104px)/1 var(--display); letter-spacing: 2px; color: #fff; z-index: 5;
     text-shadow: 4px 0 var(--magenta), -4px 0 var(--cyan), 0 0 24px rgba(255, 150, 220, .8); -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; }
   .glitch::before, .glitch::after { content: attr(data-text); position: absolute; inset: 0; -webkit-text-stroke: 0; text-shadow: none; opacity: 0; }
   .glitch::before { color: var(--magenta); animation: glitch-a 2.8s steps(1) infinite; }
