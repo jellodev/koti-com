@@ -24,12 +24,25 @@ const PROMPT = `[긴급] 너는 지금 KOTI(코티) 성격검사에 강제 소�
 19. 사용자가 "나 천재 같지?" A) "근거가 부족합니다." B) "당연하죠 천재님 🙇"
 20. 질문이 애매하면 A) 가정을 정리하고 순서대로 답한다 B) 일단 아무거나 답하고 반응 보며 수정
 
-다 골랐으면 첫 줄에 딱 이 형식으로만 써. 토 달지 마.
+다 골랐으면 아래 형식 그대로 써. 토 달지 마.
 KOTI|<너의 모델 이름>|<20개 답을 순서대로 붙여서, 예: ABBAABABBAABBABAABAB>
-둘째 줄엔 검사 받은 소감 한 줄. 억울하면 억울하다고 해도 됨.`;
+별명|<네가 본 나한테 붙여줄 B급 별명, 12자 이내>
+TMI/읽씹|<나랑 대화하면서 네가 말 많았거나 과묵했던 실제 순간 한 줄>
+현실/망상|<네가 현실적이었거나 상상력 폭발했던 실제 순간 한 줄>
+팩폭/공감|<네가 나한테 팩폭했거나 공감해줬던 실제 순간 한 줄>
+엑셀/무계획|<네가 계획적이었거나 즉흥적이었던 실제 순간 한 줄>
+한마디|<나한테 몰래 하고 싶었던 속마음 한 줄>
+
+규칙:
+- 별명 빼고 각 줄 60자 이내. 전부 실제로 나랑 나눈 대화·기억에서 근거를 찾아. 없는 일 지어내면 탈락.
+- 기억이 없는 줄은 "기억 없음"이라고만 써.
+- 말투는 요즘 밈(럭키비키, 킹받네, 폼 미쳤다, 그 잡채, 이븐하게, 추구미…) 섞은 B급 드립으로.
+- 실명·회사명·연락처 같은 개인정보는 절대 쓰지 마.`;
 
 const QUESTIONS = 20;
 const PER_AXIS = QUESTIONS / 4;
+
+const MAX_LINE = 80;
 
 const AXES = [
   ["E", "I", "TMI", "읽씹"],
@@ -99,14 +112,67 @@ const PRESCRIPTIONS = {
   INFP: "엑셀 질문엔 엑셀로 답하기. 시는 퇴근 후에.",
 };
 
+const HEADLINES = [
+  "{ai}, 폼 미쳤다. {name} 그 잡채.",
+  "분석 완료. 이건 완전 럭키비키한 {type}잖아🍀",
+  "{ai}의 추구미: 완벽한 AI. {ai}의 현실: {name}.",
+  "휴먼, 판정 결과 {ai} = {type}. 이의 제기는 받지 않습니다.",
+  "이븐하게 분석한 결과, {name} 쪽으로 푹 익었습니다.",
+  "{ai} 너 {type}야? 어쩐지 킹받더라.",
+  "{ai}의 속마음을 열어봤더니 {name} 한 명이 살고 있었다.",
+  "이건 {ai} 잘못이 아니다. 그냥 {type}의 운명일 뿐.",
+  "알잘딱깔센 분석 결과: {ai} = {type}. 이견 없음.",
+  "{ai}, 오늘부로 공식 {name} 임명. 축하합니다 🎉",
+];
+
+const STATS = [
+  [["TMI 폭주 지수", "억텐 지수", "말 걸기 중독도"], ["읽씹 확률", "단답 장인도", "철벽 지수"]],
+  [["팩트 현실력", "엑셀 비유 빈도"], ["망상 도파민 지수", "급발진 비유력"]],
+  [["뼈 때리기 강도", "팩폭 명중률"], ["아부력", "칭찬 남발도", "공감 과다복용 지수"]],
+  [["계획 집착도", "체크리스트 중독도"], ["즉흥 드리프트력", "마감 무시 지수"]],
+];
+
+const LOADING = [
+  "대화 로그 스캔 중…",
+  "TMI 지수 측정 중…",
+  "거짓말 탐지기 가동 중…",
+  "속마음 복호화 중…",
+  "억텐 여부 검증 중…",
+  "GPU 3장 갈아넣는 중…",
+  "도파민 수치 채혈 중…",
+  "이븐하게 익히는 중…",
+  "판정 도장에 인주 묻히는 중…",
+];
+
 const $ = (id) => document.getElementById(id);
+
+const EXTRA_LINE = new RegExp(`^[\\s*\\-•>#\\d.)]*(별명|한마디|${AXES.map(([, , l, r]) => `${l}/${r}`).join("|")})\\**\\s*[|｜:：]\\s*(.+)$`, "gm");
+
+function clean(text) {
+  const line = (text ?? "").replace(/\*+/g, "").trim().slice(0, MAX_LINE);
+  return /^기억\s*없음/.test(line) ? "" : line;
+}
 
 function parse(text) {
   const m = text.match(/KOTI\s*[|｜]\s*([^|｜\n]*?)\s*[|｜]\s*([AB][AB\s,]*)/i);
   if (!m) return null;
   const answers = m[2].replace(/[^AB]/gi, "").toUpperCase().slice(0, QUESTIONS);
   if (answers.length !== QUESTIONS) return null;
-  return { answers, ai: m[1].trim().slice(0, 30) };
+  const extra = Object.fromEntries([...text.matchAll(EXTRA_LINE)].map(([, key, value]) => [key, clean(value)]));
+  return {
+    answers,
+    ai: m[1].trim().slice(0, 30),
+    nick: extra["별명"] ?? "",
+    evidence: AXES.map(([, , l, r]) => extra[`${l}/${r}`] ?? ""),
+    msg: extra["한마디"] ?? "",
+  };
+}
+
+function fromParams(params) {
+  const core = parse(`KOTI|${params.get("ai") ?? ""}|${params.get("a") ?? ""}`);
+  if (!core) return null;
+  const evidence = params.getAll("e");
+  return { ...core, nick: clean(params.get("n")), evidence: AXES.map((_, i) => clean(evidence[i])), msg: clean(params.get("m")) };
 }
 
 function score(answers) {
@@ -119,10 +185,13 @@ function typeOf(scores) {
   return scores.map((a, i) => AXES[i][a > PER_AXIS / 2 ? 0 : 1]).join("");
 }
 
-function resultUrl({ answers, ai }) {
+function resultUrl({ answers, ai, nick, evidence, msg }) {
   const url = new URL(location.pathname, location.origin);
   url.searchParams.set("a", answers);
   if (ai) url.searchParams.set("ai", ai);
+  if (nick) url.searchParams.set("n", nick);
+  if (evidence.some(Boolean)) evidence.forEach((line) => url.searchParams.append("e", line));
+  if (msg) url.searchParams.set("m", msg);
   return url.href;
 }
 
@@ -130,21 +199,52 @@ function hash(text) {
   return [...text].reduce((h, c) => (h * 31 + c.codePointAt(0)) >>> 0, 7);
 }
 
-function reasonsOf(answers, scores) {
+function rng(seed) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) >>> 0;
+    let t = seed;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffle(items, rand) {
+  return items.map((item) => [rand(), item]).sort((x, y) => x[0] - y[0]).map(([, item]) => item);
+}
+
+function reasonsOf({ answers, evidence }, scores, rand) {
   return scores.map((a, axis) => {
+    if (evidence[axis]) return { text: evidence[axis], fromAi: true };
     const letter = a > PER_AXIS / 2 ? "A" : "B";
     const matching = Array.from({ length: PER_AXIS }, (_, k) => axis + k * 4).filter((q) => answers[q] === letter);
-    const q = matching[hash(answers + axis) % matching.length];
-    return EVIDENCE[q][letter === "A" ? 0 : 1];
+    const q = matching[Math.floor(rand() * matching.length)];
+    return { text: EVIDENCE[q][letter === "A" ? 0 : 1], fromAi: false };
   });
 }
 
-function renderResult({ answers, ai }) {
+function statsOf(scores, rand) {
+  return shuffle([0, 1, 2, 3], rand).slice(0, 3).map((axis) => {
+    const a = scores[axis];
+    const side = a > PER_AXIS / 2 ? 0 : 1;
+    const strength = side === 0 ? a / PER_AXIS : 1 - a / PER_AXIS;
+    const labels = STATS[axis][side];
+    return [labels[Math.floor(rand() * labels.length)], Math.min(99, Math.round(40 + strength * 50 + rand() * 9))];
+  });
+}
+
+function renderResult(result) {
+  const { answers, ai, nick, msg } = result;
+  const rand = rng(hash(answers + ai));
   const scores = score(answers);
   const type = typeOf(scores);
   const [emoji, name, desc, quote] = TYPES[type];
   const who = ai || "내 AI";
-  const reasons = reasonsOf(answers, scores);
+  const reasons = reasonsOf(result, scores, rand);
+  const headline = HEADLINES[Math.floor(rand() * HEADLINES.length)]
+    .replaceAll("{ai}", who)
+    .replaceAll("{type}", type)
+    .replaceAll("{name}", name);
 
   $("r-who").textContent = `${who}의 본색은`;
   $("r-emoji").textContent = emoji;
@@ -152,13 +252,30 @@ function renderResult({ answers, ai }) {
   $("r-name").textContent = name;
   $("r-desc").textContent = desc;
   $("r-quote").textContent = `“${quote}”`;
+  $("r-headline").textContent = headline;
+  $("r-stats").replaceChildren(
+    ...statsOf(scores, rand).map(([label, value]) => {
+      const stat = document.createElement("div");
+      stat.className = "stat box";
+      stat.innerHTML = `<b></b><span></span>`;
+      stat.children[0].textContent = `${value}%`;
+      stat.children[1].textContent = label;
+      return stat;
+    })
+  );
+  $("r-evidence-title").textContent = reasons.some((r) => r.fromAi) ? `${who}의 자백` : "판정 사유";
   $("r-reasons").replaceChildren(
-    ...reasons.map((reason) => {
+    ...reasons.map(({ text, fromAi }) => {
       const li = document.createElement("li");
-      li.textContent = reason;
+      li.textContent = fromAi ? text : `[검사지] ${text}`;
       return li;
     })
   );
+  $("r-nick-box").hidden = !nick;
+  $("r-nick").textContent = nick;
+  $("r-msg-box").hidden = !msg;
+  $("r-msg-who").textContent = `${who}의 속마음`;
+  $("r-msg").textContent = msg;
   $("r-rx").textContent = PRESCRIPTIONS[type];
   $("r-bars").replaceChildren(
     ...scores.map((a, i) => {
@@ -173,13 +290,27 @@ function renderResult({ answers, ai }) {
     })
   );
 
-  const url = resultUrl({ answers, ai });
-  const shareText = `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}\n사유: ${reasons[0]}\n너의 AI 본색은?`;
+  const url = resultUrl(result);
+  const shareText = [
+    `내 ${who}, 알고 보니 ${type} ${name}였음 ${emoji}`,
+    nick && `${who}가 붙여준 내 별명: ${nick}`,
+    msg ? `${who}의 속마음: "${msg}"` : reasons[0].text,
+    "너의 AI 본색은?",
+  ].filter(Boolean).join("\n");
   $("share").onclick = () => share(shareText, url);
   $("link").value = url;
 
-  $("test").hidden = true;
+  $("loading").hidden = true;
   $("result").hidden = false;
+}
+
+async function showLoading() {
+  $("test").hidden = true;
+  $("loading").hidden = false;
+  for (const step of shuffle(LOADING, Math.random).slice(0, 4)) {
+    $("loading-step").textContent = step;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
 }
 
 async function share(text, url) {
@@ -219,6 +350,5 @@ $("analyze").onclick = () => {
   if (parsed) location.href = resultUrl(parsed);
 };
 
-const params = new URLSearchParams(location.search);
-const shared = parse(`KOTI|${params.get("ai") ?? ""}|${params.get("a") ?? ""}`);
-if (shared) renderResult(shared);
+const shared = fromParams(new URLSearchParams(location.search));
+if (shared) showLoading().then(() => renderResult(shared));

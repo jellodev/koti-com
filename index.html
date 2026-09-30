@@ -60,6 +60,20 @@
   .reasons li::marker { font-weight: 800; color: var(--red); }
   .rx { margin: 16px 0 0; padding: 12px 14px; background: var(--bg); border: 2px solid var(--ink); border-radius: 10px; font-weight: 700; }
   .rx b { color: var(--red); margin-right: 8px; }
+  .headline { margin: 0 0 18px; font-size: 18px; font-weight: 800; }
+  .stats { margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { padding: 10px 4px; box-shadow: 3px 3px 0 var(--ink); border-width: 2px; }
+  .stat b { display: block; font: 400 26px/1.1 "Black Han Sans", sans-serif; color: var(--red); }
+  .stat span { display: block; margin-top: 4px; font-size: 11px; font-weight: 700; line-height: 1.3; }
+  .nick { margin: 18px 0 0; text-align: center; font-weight: 700; }
+  .nick b { display: block; margin-top: 4px; font-size: 28px; font-weight: 400; color: var(--blue); }
+  .msg { margin-top: 16px; padding: 14px; background: var(--ink); color: var(--paper); border-radius: 12px 12px 12px 0; }
+  .msg b { color: var(--bg); font-size: 13px; }
+  .msg p { margin: 4px 0 0; font-weight: 700; font-size: 17px; }
+  .loading { margin-top: 40px; padding: 40px 20px; text-align: center; font-weight: 700; }
+  .loading .display { font-size: 24px; margin: 12px 0 4px; }
+  .spinner { font-size: 64px; animation: wobble .4s infinite alternate ease-in-out; }
+  @keyframes wobble { from { transform: rotate(-15deg) scale(1); } to { transform: rotate(15deg) scale(1.15); } }
   .row { display: flex; gap: 10px; margin-top: 16px; }
   .row input { flex: 1; min-width: 0; padding: 12px; font-size: 12px; color: var(--dim); }
   .row button { width: auto; margin: 0; padding: 10px 14px; font-size: 15px; }
@@ -72,6 +86,12 @@
   <p class="sub">Ko Type Indicator · AI 전용 MBTI <small>(비공식)(아주 비공식)</small></p>
   <p class="lead display">매일 부려먹는 내 AI,<br><mark>속으로 무슨 생각</mark> 할까?</p>
 
+  <section id="loading" class="loading box" hidden>
+    <div class="spinner">🤖</div>
+    <p class="display">KOTI 판정 엔진 가동</p>
+    <p id="loading-step"></p>
+  </section>
+
   <section id="result" hidden>
     <div class="card box">
       <div class="stamp display">판정완료</div>
@@ -81,10 +101,14 @@
       <div class="name"><span id="r-name"></span></div>
       <p class="desc" id="r-desc"></p>
       <p class="quote" id="r-quote"></p>
+      <div class="stats" id="r-stats"></div>
       <div class="bars" id="r-bars"></div>
       <div class="reasons">
-        <h3 class="display">판정 사유</h3>
+        <p class="headline" id="r-headline"></p>
+        <h3 class="display" id="r-evidence-title"></h3>
         <ol id="r-reasons"></ol>
+        <p class="nick" id="r-nick-box" hidden>AI가 붙여준 당신의 별명<b class="display" id="r-nick"></b></p>
+        <div class="msg" id="r-msg-box" hidden><b id="r-msg-who"></b><p id="r-msg"></p></div>
         <p class="rx"><b>처방</b><span id="r-rx"></span></p>
       </div>
     </div>
@@ -110,13 +134,13 @@
 
   <section>
     <h2><b>3</b>AI 자백 붙여넣기</h2>
-    <textarea class="box" id="answer" placeholder="KOTI|Claude|ABBAABABBAABBABAABAB"></textarea>
+    <textarea class="box" id="answer" placeholder="KOTI|Claude|ABBAABABBAABBABAABAB&#10;별명|…&#10;(AI 답변 통째로 붙여넣기)"></textarea>
     <p class="error" id="error" hidden>AI가 형식을 안 지켰네요. 괘씸. 답변을 통째로 붙여넣거나 다시 시켜보세요.</p>
     <button type="button" id="analyze">본색 까보기</button>
   </section>
   </div>
 
-  <footer>답변은 어디에도 저장 안 함. 우리도 모름. 진짜로.</footer>
+  <footer>답변은 어디에도 저장 안 함. 우리도 모름. 진짜로.<br>대신 AI가 쓴 문장은 결과 링크에 그대로 담기니, 공유 전에 한 번 읽어보기.</footer>
 </main>
 <script src="app.js"></script>
 </body>
